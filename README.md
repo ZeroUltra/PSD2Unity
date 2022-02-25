@@ -34,3 +34,5 @@ PSD生成UGUI界面和场景
  ❤️ ❤️ ❤️ ❤️ ❤️
 
 [Spine 2D - LayersToPNG.jsx fix for Photoshop CC (github.com)](https://gist.github.com/nzhul/5ef666d5960423fed0de)
+
+[EsotericSoftware/spine-scripts: Scripts to export from PhotoShop and other tools to Spine's JSON data format. (github.com)](https://github.com/EsotericSoftware/spine-scripts)

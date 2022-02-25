@@ -9,10 +9,7 @@ var writeJson = true;
 var ignoreHiddenLayers = true;
 var pngScale = 1;
 var groupsAsSkins = false;
-var useRulerOrigin = false;
-var imagesDir = "./images/";
-var jsonDir = "";
-//var padding = 1;
+var saveDir = "C:/Images/";
 
 
 // IDs for saving settings.
@@ -24,8 +21,8 @@ const ignoreHiddenLayersID = stringIDToTypeID("ignoreHiddenLayers");
 const groupsAsSkinsID = stringIDToTypeID("groupsAsSkins");
 //const useRulerOriginID = stringIDToTypeID("useRulerOrigin");
 const pngScaleID = stringIDToTypeID("pngScale");
-const imagesDirID = stringIDToTypeID("imagesDir");
-const jsonDirID = stringIDToTypeID("jsonDir");
+const saveDirID = stringIDToTypeID("saveDir");
+//const jsonDirID = stringIDToTypeID("jsonDir");
 //const paddingID = stringIDToTypeID("padding");
 
 var originalDoc;
@@ -41,22 +38,13 @@ function run () {
 	saveSettings();
 	showProgress();
 
-	// var absjsonDir = absolutePath(jsonDir);
-	// var absjsonDir = jsonDir;
-	// new Folder(absjsonDir).create();
-
-	// same path
-	var absImagesDir = imagesDir;
-	var absjsonDir=imagesDir;
-	var imagesFolder = new Folder(absImagesDir);
-	
-	imagesFolder.create();
-
-	var relImagesDir = imagesFolder.getRelativeURI(absjsonDir);
-	relImagesDir = relImagesDir == "." ? "" : (relImagesDir + "/");
+	// create path
+	if(!endsWith(saveDir,"/"))
+		 saveDir+="/";
+	 new Folder(saveDir).create();;
 
 	// Get ruler origin.
-	var xOffSet = 0, yOffSet = 0;
+	//var xOffSet = 0, yOffSet = 0;
 	// if (useRulerOrigin) {
 	// 	var ref = new ActionReference();
 	// 	ref.putEnumerated(charIDToTypeID("Dcmn"), charIDToTypeID("Ordn"), charIDToTypeID("Trgt"));
@@ -74,16 +62,10 @@ function run () {
 			storeHistory();
 		}
 
-		var file = new File(absImagesDir + "template" + ".png");
+		var file = new File(saveDir + "template" + ".png");
 		if (file.exists) file.remove();
 
-		var opts;
-		opts = new ExportOptionsSaveForWeb();
-		opts.format = SaveDocumentType.PNG;
-		opts.PNG8 = false;
-		opts.quality = 100;
-
-		activeDocument.exportDocument(file, ExportType.SAVEFORWEB, opts);
+		savePNG(file);
 
 		if (pngScale != 1) restoreHistory();
 	}
@@ -106,6 +88,8 @@ function run () {
 	storeHistory();
 	//var json='{"sort":[\n';
 	var json='{\n"data":{';
+	// json+=saveDir+"\n";
+	// json+=imagesFolder+"\n";
 	json+='"width":'+activeDocument.width.as("px")+",";
 	json+='"height":'+activeDocument.height.as("px");
 	json+="},\n";
@@ -134,7 +118,7 @@ function run () {
 	}
 
 	// Output skeleton and bones.
-	//var json = '{"skeleton":{"images":"' + relImagesDir + '"},\n"bones":[{"name":"root"}],\n"slots":[\n';
+	//var json = '{"skeleton":{"images":"' + relsaveDir + '"},\n"bones":[{"name":"root"}],\n"slots":[\n';
 	 //var json = '{"PNGs":{\n';
 	// var json='{"sort":[\n';
 	// // Output slots.
@@ -199,15 +183,14 @@ function run () {
 				if (pngScale != 1) scaleImage();
 				//if (padding > 0) activeDocument.resizeCanvas(width, height, AnchorPosition.MIDDLECENTER);
 
-				if (skinName != "root") new Folder(absImagesDir + skinName).create();
-
-				var opts;
-				opts = new ExportOptionsSaveForWeb();
-				opts.format = SaveDocumentType.PNG;
-				opts.PNG8 = false;
-				opts.quality = 100;
-
-				activeDocument.exportDocument(new File(absImagesDir + attachmentName + ".png"), ExportType.SAVEFORWEB, opts);
+				if (skinName != "root") new Folder(saveDir + skinName).create();
+				if(attachmentName.indexOf(" ",)>0)
+				{
+					alert("The layer name contains Spaces, Please rename it!!!"); //you kong ge 
+					return;
+				}
+				
+				savePNG(new File(saveDir + attachmentName + ".png"));
 			}
 
 			restoreHistory();
@@ -217,10 +200,10 @@ function run () {
 			y += Math.round(height) / 2;
 
 			// Make relative to the Photoshop document ruler origin.
-			if (useRulerOrigin) {
-				x -= xOffSet * pngScale;
-				y -= activeDocument.height.as("px") * pngScale - yOffSet * pngScale; // Invert y.
-			}
+			// if (useRulerOrigin) {
+			// 	x -= xOffSet * pngScale;
+			// 	y -= activeDocument.height.as("px") * pngScale - yOffSet * pngScale; // Invert y.
+			// }
 
 			//json += '\t"' + slotName + '":{'+ '"x":' + x + ',"y":' + y + ',"width":' + Math.round(width) + ',"height":' + Math.round(height) + '}';
 			json += '\t{"pngname":"' + slotName + '","id":' + layer.id + ',"x":' + x + ',"y":' + y + ',"width":' + Math.round(width) + ',"height":' + Math.round(height) + '}';
@@ -247,7 +230,7 @@ function run () {
 	if (writeJson) {
 		var name = decodeURI(originalDoc.name);
 		name = name.substring(0, name.indexOf("."));
-		var file = new File(absjsonDir + name + ".ps.json");
+		var file = new File(saveDir + name + ".ps.json");
 		file.remove();
 		file.open("w", "TEXT");
 		file.lineFeed = "\n";
@@ -334,7 +317,7 @@ function showDialog () {
 			writePngsCheckbox.value = writePngs;
 			var writeTemplateCheckbox = group.add("checkbox", undefined, " Write a template PNG");
 			writeTemplateCheckbox.value = writeTemplate;
-			var writeJsonCheckbox = group.add("checkbox", undefined, " Write Spine JSON");
+			var writeJsonCheckbox = group.add("checkbox", undefined, " Write JSON");
 			writeJsonCheckbox.value = writeJson;
 		group = checkboxGroup.add("group");
 			group.orientation = "column";
@@ -373,7 +356,6 @@ function showDialog () {
 	//paddingText.onChanging = function () { paddingSlider.value = paddingText.text; };
 	//paddingSlider.onChanging = function () { paddingText.text = Math.round(paddingSlider.value); };
 
-	var imagesDirText;
 	var outputGroup = dialog.add("panel", undefined, "Output Directory");
 		outputGroup.alignChildren = "fill";
 		outputGroup.margins = [10,15,10,10];
@@ -381,15 +363,15 @@ function showDialog () {
 			group = textGroup.add("group");
 				group.orientation = "column";
 				group.alignChildren = "right";
-				group.add("statictext", undefined, "Folder:");
+				group.add("statictext", undefined, "Save Path:");
 				//group.add("statictext", undefined, "JSON:");
 			group = textGroup.add("group");
 				group.orientation = "column";
 				group.alignChildren = "fill";
 				group.alignment = ["fill", ""];
-				var imagesDirText = group.add("edittext", undefined, imagesDir);
+				var saveDirText = group.add("edittext", undefined, saveDir);
 				//var jsonDirText = group.add("edittext", undefined, jsonDir);
-		outputGroup.add("statictext", undefined, "absolute path (c:/aaa/bb/cc/)").alignment = "center";
+		outputGroup.add("statictext", undefined, "absolute path (c:/aaa/bb/cc)").alignment = "center";
 		//outputGroup.add("statictext", undefined, "Begin paths with \"./\" to be relative to the PSD file.").alignment = "center";
 
 	var group = dialog.add("group");
@@ -409,11 +391,10 @@ function showDialog () {
 		var scaleValue = parseFloat(scaleText.text);
 		if (scaleValue > 0 && scaleValue <= 100) pngScale = scaleValue / 100;
 		groupsAsSkins = groupsAsSkinsCheckbox.value;
-		useRulerOrigin = useRulerOriginCheckbox.value;
-		imagesDir = imagesDirText.text;
-		jsonDir = jsonDirText.text;
-		var paddingValue = parseInt(paddingText.text);
-		if (paddingValue >= 0) padding = paddingValue;
+		saveDir = saveDirText.text;
+		
+		// var paddingValue = parseInt(paddingText.text);
+		// if (paddingValue >= 0) padding = paddingValue;
 	}
 
 	dialog.onClose = function() {
@@ -464,10 +445,8 @@ function loadSettings () {
 	if (settings.hasKey(ignoreHiddenLayersID)) ignoreHiddenLayers = settings.getBoolean(ignoreHiddenLayersID);
 	if (settings.hasKey(pngScaleID)) pngScale = settings.getDouble(pngScaleID);
 	if (settings.hasKey(groupsAsSkinsID)) groupsAsSkins = settings.getBoolean(groupsAsSkinsID);
-	//if (settings.hasKey(useRulerOriginID)) useRulerOrigin = settings.getBoolean(useRulerOriginID);
-	if (settings.hasKey(imagesDirID)) imagesDir = settings.getString(imagesDirID);
-	if (settings.hasKey(jsonDirID)) jsonDir = settings.getString(jsonDirID);
-	//if (settings.hasKey(paddingID)) padding = settings.getDouble(paddingID);
+	if (settings.hasKey(saveDirID)) saveDir = settings.getString(saveDirID);
+	//if (settings.hasKey(jsonDirID)) jsonDir = settings.getString(jsonDirID);
 }
 
 function saveSettings () {
@@ -478,10 +457,7 @@ function saveSettings () {
 	settings.putBoolean(ignoreHiddenLayersID, ignoreHiddenLayers);
 	settings.putDouble(pngScaleID, pngScale);
 	settings.putBoolean(groupsAsSkinsID, groupsAsSkins);
-	//settings.putBoolean(useRulerOriginID, useRulerOrigin);
-	settings.putString(imagesDirID, imagesDir);
-	settings.putString(jsonDirID, jsonDir);
-	//settings.putDouble(paddingID, padding);
+	settings.putString(saveDirID, saveDir);
 	app.putCustomOptions(settingsID, settings, true);
 }
 
@@ -489,7 +465,7 @@ function saveSettings () {
 
 function scaleImage () {
 	var imageSize = activeDocument.width.as("px");
-	activeDocument.resizeImage(UnitValue(imageSize * pngScale, "px"), null, null, ResampleMethod.BICUBICSHARPER);
+	activeDocument.resizeImage(UnitValue(imageSize * pngScale, "px"), null, 300, ResampleMethod.BICUBICSHARPER);
 }
 
 var historyIndex;
@@ -592,4 +568,22 @@ function quote (value) {
 
 function forwardSlashes (path) {
 	return path.replace(/\\/g, "/");
+}
+
+function savePNG (file) {
+	// SaveForWeb changes spaces to dash. Also some users report it writes HTML.
+	//var options = new ExportOptionsSaveForWeb();
+	//options.format = SaveDocumentType.PNG;
+	//options.PNG8 = false;
+	//options.transparency = true;
+	//options.interlaced = false;
+	//options.includeProfile = false;
+	//activeDocument.exportDocument(file, ExportType.SAVEFORWEB, options);
+
+	// SaveAs sometimes writes a huge amount of XML in the PNG. Ignore it or use Oxipng to make smaller PNGs.
+
+	//bao chi yuan lai de DPI
+	var options = new PNGSaveOptions();
+	options.compression = 6;
+	activeDocument.saveAs(file, options, true, Extension.LOWERCASE); 
 }
