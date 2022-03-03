@@ -9,6 +9,7 @@ var writeJson = true;
 var ignoreHiddenLayers = true;
 var pngScale = 1;
 var groupsAsSkins = false;
+var trimWhitespace = false;
 var saveDir = "C:/Images/";
 
 
@@ -19,7 +20,7 @@ const writeTemplateID = stringIDToTypeID("writeTemplate");
 const writeJsonID = stringIDToTypeID("writeJson");
 const ignoreHiddenLayersID = stringIDToTypeID("ignoreHiddenLayers");
 const groupsAsSkinsID = stringIDToTypeID("groupsAsSkins");
-//const useRulerOriginID = stringIDToTypeID("useRulerOrigin");
+const trimWhitespaceID = stringIDToTypeID("trimWhitespace");
 const pngScaleID = stringIDToTypeID("pngScale");
 const saveDirID = stringIDToTypeID("saveDir");
 //const jsonDirID = stringIDToTypeID("jsonDir");
@@ -170,14 +171,19 @@ function run () {
 			var y = activeDocument.height.as("px") * pngScale;
 
 			layer.visible = true;
-			if (!layer.isBackgroundLayer) activeDocument.trim(TrimType.TRANSPARENT, false, true, true, false);
-			x -= activeDocument.width.as("px") * pngScale;
-			y -= activeDocument.height.as("px") * pngScale;
-			if (!layer.isBackgroundLayer) activeDocument.trim(TrimType.TRANSPARENT, true, false, false, true);
+			if(trimWhitespace)
+			{
+				if (!layer.isBackgroundLayer) activeDocument.trim(TrimType.TRANSPARENT, false, true, true, false);
+				x -= activeDocument.width.as("px") * pngScale;
+				y -= activeDocument.height.as("px") * pngScale;
+				if (!layer.isBackgroundLayer) activeDocument.trim(TrimType.TRANSPARENT, true, false, false, true);
+			}
 			//var width = activeDocument.width.as("px") * pngScale + padding * 2;
 			//var height = activeDocument.height.as("px") * pngScale + padding * 2;
 			var width = activeDocument.width.as("px") * pngScale ;
 			var height = activeDocument.height.as("px") * pngScale;
+
+
 			// Save image.
 			if (writePngs) {
 				if (pngScale != 1) scaleImage();
@@ -188,8 +194,7 @@ function run () {
 				{
 					alert("The layer name contains Spaces, Please rename it!!!"); //you kong ge 
 					return;
-				}
-				
+				}		
 				savePNG(new File(saveDir + attachmentName + ".png"));
 			}
 
@@ -326,8 +331,8 @@ function showDialog () {
 			ignoreHiddenLayersCheckbox.value = ignoreHiddenLayers;
 			var groupsAsSkinsCheckbox = group.add("checkbox", undefined, " Use groups as skins");
 			groupsAsSkinsCheckbox.value = groupsAsSkins;
-			 //var useRulerOriginCheckbox = group.add("checkbox", undefined, " Use ruler origin as 0,0");
-			 //useRulerOriginCheckbox.value = useRulerOrigin;
+			 var groupsTrimWhiteSpaceCheckbox = group.add("checkbox", undefined, " Trim Whitespace");
+			 groupsTrimWhiteSpaceCheckbox.value = trimWhitespace;
 
 	var slidersGroup = dialog.add("group");
 		group = slidersGroup.add("group");
@@ -391,6 +396,7 @@ function showDialog () {
 		var scaleValue = parseFloat(scaleText.text);
 		if (scaleValue > 0 && scaleValue <= 100) pngScale = scaleValue / 100;
 		groupsAsSkins = groupsAsSkinsCheckbox.value;
+		trimWhitespace=groupsTrimWhiteSpaceCheckbox.value;
 		saveDir = saveDirText.text;
 		
 		// var paddingValue = parseInt(paddingText.text);
@@ -445,6 +451,7 @@ function loadSettings () {
 	if (settings.hasKey(ignoreHiddenLayersID)) ignoreHiddenLayers = settings.getBoolean(ignoreHiddenLayersID);
 	if (settings.hasKey(pngScaleID)) pngScale = settings.getDouble(pngScaleID);
 	if (settings.hasKey(groupsAsSkinsID)) groupsAsSkins = settings.getBoolean(groupsAsSkinsID);
+	if (settings.hasKey(trimWhitespaceID)) trimWhitespace = settings.getBoolean(trimWhitespaceID);
 	if (settings.hasKey(saveDirID)) saveDir = settings.getString(saveDirID);
 	//if (settings.hasKey(jsonDirID)) jsonDir = settings.getString(jsonDirID);
 }
@@ -457,6 +464,7 @@ function saveSettings () {
 	settings.putBoolean(ignoreHiddenLayersID, ignoreHiddenLayers);
 	settings.putDouble(pngScaleID, pngScale);
 	settings.putBoolean(groupsAsSkinsID, groupsAsSkins);
+	settings.putBoolean(trimWhitespaceID, trimWhitespace);
 	settings.putString(saveDirID, saveDir);
 	app.putCustomOptions(settingsID, settings, true);
 }
