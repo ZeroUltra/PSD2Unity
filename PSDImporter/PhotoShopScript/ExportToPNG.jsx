@@ -318,7 +318,7 @@ function showDialog () {
 		var group = checkboxGroup.add("group");
 			group.orientation = "column";
 			group.alignChildren = "left";
-			var writePngsCheckbox = group.add("checkbox", undefined, " Write layers as PNGs");
+			var writePngsCheckbox = group.add("checkbox", undefined, " Write PNGs");
 			writePngsCheckbox.value = writePngs;
 			var writeTemplateCheckbox = group.add("checkbox", undefined, " Write a template PNG");
 			writeTemplateCheckbox.value = writeTemplate;
@@ -329,7 +329,7 @@ function showDialog () {
 			group.alignChildren = "left";
 			var ignoreHiddenLayersCheckbox = group.add("checkbox", undefined, " Ignore hidden layers");
 			ignoreHiddenLayersCheckbox.value = ignoreHiddenLayers;
-			var groupsAsSkinsCheckbox = group.add("checkbox", undefined, " Use groups as skins");
+			var groupsAsSkinsCheckbox = group.add("checkbox", undefined, " Use groups");
 			groupsAsSkinsCheckbox.value = groupsAsSkins;
 			 var groupsTrimWhiteSpaceCheckbox = group.add("checkbox", undefined, " Trim Whitespace");
 			 groupsTrimWhiteSpaceCheckbox.value = trimWhitespace;

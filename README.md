@@ -9,15 +9,32 @@ PSD生成UGUI界面和场景
 
    ![image-20220219221748479](img/image-20220219221748479.png)
 
-2. PS中操作
+3. PS中操作
 
    ![image-20220219221854573](img/image-20220219221854573.png)
 
    ​					![image-20220219221920658](img/image-20220219221920658.png)
 
+   * `Write Layer Pngs`  将ps中图层导出png
+   * `Ignore hidden Layer` 忽略隐藏图层 ,如果勾选则不导出PS中隐藏图层
+   * `Write a template PNG` 写入一张模板
+   * `User groups` 是否使用组,勾选会按PS组导出
+   * `Write Json` 是否导出json, Unity中会用到
+   * `Trim Whitespace` 是否去除空白,不勾选则导出原始画布尺寸
+
+   ***
+
+   
+
+   ![](img/0.gif)
+
    等待一段时间之后,在对应的文件夹会生成相应的资源文件
 
    ![image-20220219222232023](img/image-20220219222232023.png)
+
+   ***
+
+   
 
 3. 将生成的文件导入Unity中,然后将图片格式设置成`Sprite`
 
