@@ -44,7 +44,10 @@ namespace PSDImporter
                 if (!string.IsNullOrEmpty(group))
                 {
                     if (rootTrans.transform.Find(group) == null)
-                        CreateGo<Transform>(group, rootTrans);
+                    {
+                        var go = CreateGo<Transform>(group, rootTrans);
+                        go.transform.localPosition = Vector3.zero;
+                    }
                     sr = CreateGo<SpriteRenderer>(item.pngName, rootTrans.transform.Find(group));
                 }
                 else
@@ -116,6 +119,7 @@ namespace PSDImporter
                 img.rectTransform.position = new Vector3(item.x, item.y, 0);
             }
             rootRectTrans.transform.localPosition = Vector3.zero;
+            rootRectTrans.transform.localScale = Vector3.one;
             CreatePrefab(rootRectTrans.gameObject, rootRectTrans.gameObject.name + "_UI");
         }
 
