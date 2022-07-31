@@ -192,7 +192,7 @@ function run () {
 				if (skinName != "root") new Folder(saveDir + skinName).create();
 				if(attachmentName.indexOf(" ",)>0)
 				{
-					alert("The layer name contains Spaces, Please rename it!!!"); //you kong ge 
+					alert("The layer name contains Spaces, Please rename it!!!\n图层名字包含空格,请重命名!!!"); //you kong ge 
 					return;
 				}		
 				savePNG(new File(saveDir + attachmentName + ".png"));
@@ -311,20 +311,20 @@ function showDialog () {
 		return;
 	}
 
-	var dialog = new Window("dialog", "LayersToPNG1.0");
+	var dialog = new Window("dialog", "LayersToPNG1.1");
 	dialog.alignChildren = "fill";
 
 	var checkboxGroup = dialog.add("group");
 		var group = checkboxGroup.add("group");
 			group.orientation = "column";
 			group.alignChildren = "left";
-			var writePngsCheckbox = group.add("checkbox", undefined, " Write PNGs");
+			var writePngsCheckbox = group.add("checkbox", undefined, " Write Layer PNGs");
 			writePngsCheckbox.value = writePngs;
 			var writeTemplateCheckbox = group.add("checkbox", undefined, " Write a template PNG");
 			writeTemplateCheckbox.value = writeTemplate;
 			var writeJsonCheckbox = group.add("checkbox", undefined, " Write JSON");
 			writeJsonCheckbox.value = writeJson;
-		group = checkboxGroup.add("group");
+		group = checkboxGroup.add("group")
 			group.orientation = "column";
 			group.alignChildren = "left";
 			var ignoreHiddenLayersCheckbox = group.add("checkbox", undefined, " Ignore hidden layers");
@@ -332,7 +332,9 @@ function showDialog () {
 			var groupsAsSkinsCheckbox = group.add("checkbox", undefined, " Use groups");
 			groupsAsSkinsCheckbox.value = groupsAsSkins;
 			 var groupsTrimWhiteSpaceCheckbox = group.add("checkbox", undefined, " Trim Whitespace");
-			 groupsTrimWhiteSpaceCheckbox.value = trimWhitespace;
+			groupsTrimWhiteSpaceCheckbox.value = trimWhitespace;
+			checkboxGroup.alignment = ["fill", ""];
+			checkboxGroup.alignChildren = ["fill", ""];
 
 	var slidersGroup = dialog.add("group");
 		group = slidersGroup.add("group");
@@ -364,6 +366,7 @@ function showDialog () {
 	var outputGroup = dialog.add("panel", undefined, "Output Directory");
 		outputGroup.alignChildren = "fill";
 		outputGroup.margins = [10,15,10,10];
+		outputGroup.add("statictext", undefined, "absolute path (绝对路径) eg:c:/aaa/bb/cc").alignment = "center";
 		var textGroup = outputGroup.add("group");
 			group = textGroup.add("group");
 				group.orientation = "column";
@@ -374,9 +377,21 @@ function showDialog () {
 				group.orientation = "column";
 				group.alignChildren = "fill";
 				group.alignment = ["fill", ""];
-				var saveDirText = group.add("edittext", undefined, saveDir);
+				var saveDirText = group.add("edittext", undefined, saveDir)
+				saveDirText.preferredSize=[180,20];
 				//var jsonDirText = group.add("edittext", undefined, jsonDir);
-		outputGroup.add("statictext", undefined, "absolute path (c:/aaa/bb/cc)").alignment = "center";
+		var btnBrowse =textGroup.add("button",undefined,"Browse");
+		btnBrowse.preferredSize=[40,15];
+		btnBrowse.onClick=function(){
+		 	var outputFolder=Folder.selectDialog("选择保存目录");
+		 	if(outputFolder!=null)
+		 	{
+				saveDirText.text=outputFolder;
+				//alert(outputFolder);
+		 	}
+		};
+
+		
 		//outputGroup.add("statictext", undefined, "Begin paths with \"./\" to be relative to the PSD file.").alignment = "center";
 
 	var group = dialog.add("group");
@@ -536,7 +551,7 @@ function countAssocArray2 (obj) {
 	for (var key in obj)
 		 count++;
 	return count;
-}
+alignment}
 
 function trim (value) {
 	return value.replace(/^\s+|\s+$/g, "");
