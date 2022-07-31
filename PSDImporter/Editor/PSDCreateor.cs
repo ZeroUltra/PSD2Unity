@@ -32,6 +32,7 @@ namespace PSDImporter
         /// </summary>
         private static void CreateScene()
         {
+            //父对象
             var rootTrans = CreateGo<Transform>(new DirectoryInfo(selectionAssetFolder).Name, null);
             rootTrans.transform.position = new Vector3(canvasWH.width * 0.01f * 0.5f, canvasWH.height * 0.01f * 0.5f, 0f);
             int count = listpngDatas.Count - 1;
@@ -47,6 +48,7 @@ namespace PSDImporter
                     {
                         var go = CreateGo<Transform>(group, rootTrans);
                         go.transform.localPosition = Vector3.zero;
+                        go.SetAsFirstSibling();
                     }
                     sr = CreateGo<SpriteRenderer>(item.pngName, rootTrans.transform.Find(group));
                 }
@@ -54,8 +56,11 @@ namespace PSDImporter
                 {
                     sr = CreateGo<SpriteRenderer>(item.pngName, rootTrans);
                 }
+                sr.transform.SetAsFirstSibling();
                 sr.transform.position = new Vector3(item.x * 0.01f, item.y * 0.01f, 0);
-                sr.sortingOrder = count - item.index; //倒序排列
+                //倒序排列
+                sr.sortingOrder = count - item.index;
+
                 var sp = (Sprite)AssetDatabase.LoadAssetAtPath(pngpath, typeof(Sprite));
                 if (sp != null)
                     sr.sprite = sp;
@@ -103,7 +108,6 @@ namespace PSDImporter
                     }
                     img = CreateGo<Image>(item.pngName, rootRectTrans.transform.Find(group));
                     //TODO:可以根据item.pngName 自行添加其他UI组件
-
                 }
                 else
                     img = CreateGo<Image>(item.pngName, rootRectTrans);//TODO:可以根据item.pngName 自行添加其他UI组件
