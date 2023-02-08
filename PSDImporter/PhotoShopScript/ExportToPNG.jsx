@@ -13,6 +13,7 @@ var trimWhitespace = false;
 var saveDir = "C:/Images/";
 
 
+
 // IDs for saving settings.
 const settingsID = stringIDToTypeID("settings");
 const writePngsID = stringIDToTypeID("writePngs");
@@ -26,6 +27,8 @@ const saveDirID = stringIDToTypeID("saveDir");
 //const jsonDirID = stringIDToTypeID("jsonDir");
 //const paddingID = stringIDToTypeID("padding");
 
+var psdName="";
+
 var originalDoc;
 try {
 	originalDoc = app.activeDocument;
@@ -36,6 +39,7 @@ showDialog();
 
 
 function run () {
+	deleteDocumentAncestorsMetadata(); 
 	saveSettings();
 	showProgress();
 
@@ -55,7 +59,7 @@ function run () {
 	// }
 
 	activeDocument.duplicate();
-
+	psdName=activeDocument.name;
 	// Output template image.
 	if (writeTemplate) {
 		if (pngScale != 1) {
@@ -106,7 +110,7 @@ function run () {
 		{
 			json += ",\n";
 		}
-		// Use groups as skin names.
+		//Use groups as skin names.
 		var potentialSkinName = trim(layer.parent.name);
 		var layerGroupSkin = potentialSkinName.indexOf("-NOSKIN") == -1;
 		var skinName = (groupsAsSkins && layer.parent.typename == "LayerSet" && layerGroupSkin) ? potentialSkinName : "root";
@@ -114,7 +118,6 @@ function run () {
 		var skinLayers = skins[skinName];
 		if (!skinLayers) skins[skinName] = skinLayers = [];
 		skinLayers[skinLayers.length] = layer;
-
 		slots[layerName(layer)] = true;
 	}
 
@@ -142,7 +145,7 @@ function run () {
 	// 	json += '\t"' + slotName  + '"';
 	// 	slotIndex++;
 	// 	json += slotIndex < slotsCount ? ",\n" : "\n";
-	// }
+	// 	}
 	 json += '\n],\n"pngdata":{\n';
 
 	// Output skins.
@@ -150,11 +153,40 @@ function run () {
 	var skinIndex = 0;
 	for (var skinName in skins) {
 		if (!skins.hasOwnProperty(skinName)) continue;
-		json += '\t"' + skinName + '":[\n';
 
 		var skinLayers = skins[skinName];
 		var skinLayersCount = skinLayers.length;
 		var skinLayerIndex = 0;
+
+		var skname="";
+		if(skinName!="root")
+		{
+			var group=skins[skinName][0].parent;
+			if(group!=null)
+			{
+				while(true)
+				{
+					skname+=group.name;
+					if(group.parent!=null)
+					{
+						group=group.parent;
+						if(group.name==psdName||group.name=="Adobe Photoshop")
+							break;
+						else
+							skname+="/";
+					}					
+					else
+						break;
+				}
+			}
+		}
+		else 
+			skname=skinName;
+
+		skname=sortString(skname);
+
+		json += '\t"' + skname +'":[\n';
+
 		for (var i = skinLayersCount - 1; i >= 0; i--) {
 			var layer = skinLayers[i];
 			var slotName = layerName(layer);
@@ -164,7 +196,10 @@ function run () {
 				attachmentName = placeholderName;
 			} else {
 				placeholderName = slotName;
-				attachmentName = skinName + "/" + slotName;
+				if(groupsAsSkins)
+				   attachmentName = "/"+ slotName;
+				else
+					attachmentName=skinName+"/"+ slotName;
 			}
 
 			var x = activeDocument.width.as("px") * pngScale;
@@ -188,14 +223,19 @@ function run () {
 			if (writePngs) {
 				if (pngScale != 1) scaleImage();
 				//if (padding > 0) activeDocument.resizeCanvas(width, height, AnchorPosition.MIDDLECENTER);
-
-				if (skinName != "root") new Folder(saveDir + skinName).create();
-				if(attachmentName.indexOf(" ",)>0)
+				if(groupsAsSkins){
+					if (skinName != "root")
+					{
+						new Folder(saveDir + skname).create();
+						savePNG(new File(saveDir+skname+ attachmentName + ".png"));
+					} 
+					else
+						savePNG(new File(saveDir+ attachmentName + ".png"));
+				}
+				else
 				{
-					alert("The layer name contains Spaces, Please rename it!!!\n图层名字包含空格,请重命名!!!"); //you kong ge 
-					return;
-				}		
-				savePNG(new File(saveDir + attachmentName + ".png"));
+					savePNG(new File(saveDir+ attachmentName + ".png"));
+				}
 			}
 
 			restoreHistory();
@@ -303,15 +343,15 @@ function incrProgress (text) {
 
 function showDialog () {
 	if (!originalDoc) {
-		alert("Please open a document before running the LayersToPNG script.");
+		alert("Please open a document before running the ExportToPNG script.");
 		return;
 	}
 	if (!hasFilePath()) {
-		alert("Please save the document before running the LayersToPNG script.");
+		alert("Please save the document before running the ExportToPNG script.");
 		return;
 	}
 
-	var dialog = new Window("dialog", "LayersToPNG1.1");
+	var dialog = new Window("dialog", "ExportToPNG1.2");
 	dialog.alignChildren = "fill";
 
 	var checkboxGroup = dialog.add("group");
@@ -366,7 +406,7 @@ function showDialog () {
 	var outputGroup = dialog.add("panel", undefined, "Output Directory");
 		outputGroup.alignChildren = "fill";
 		outputGroup.margins = [10,15,10,10];
-		outputGroup.add("statictext", undefined, "absolute path (绝对路径) eg:c:/aaa/bb/cc").alignment = "center";
+		outputGroup.add("statictext", undefined, "absolute path: eg-> c:/aaa/bb/cc").alignment = "center";
 		var textGroup = outputGroup.add("group");
 			group = textGroup.add("group");
 				group.orientation = "column";
@@ -383,7 +423,7 @@ function showDialog () {
 		var btnBrowse =textGroup.add("button",undefined,"Browse");
 		btnBrowse.preferredSize=[40,15];
 		btnBrowse.onClick=function(){
-		 	var outputFolder=Folder.selectDialog("选择保存目录");
+		 	var outputFolder=Folder.selectDialog("选??????录");
 		 	if(outputFolder!=null)
 		 	{
 				saveDirText.text=outputFolder;
@@ -594,19 +634,46 @@ function forwardSlashes (path) {
 }
 
 function savePNG (file) {
-	// SaveForWeb changes spaces to dash. Also some users report it writes HTML.
-	//var options = new ExportOptionsSaveForWeb();
-	//options.format = SaveDocumentType.PNG;
-	//options.PNG8 = false;
-	//options.transparency = true;
-	//options.interlaced = false;
-	//options.includeProfile = false;
-	//activeDocument.exportDocument(file, ExportType.SAVEFORWEB, options);
+	//SaveForWeb changes spaces to dash. Also some users report it writes HTML.
+	// var options = new ExportOptionsSaveForWeb();
+	// options.format = SaveDocumentType.PNG;
+	// options.PNG8 = false;
+	// options.transparency = true;
+	// options.interlaced = false;
+	// options.includeProfile = false;
+	// activeDocument.exportDocument(file, ExportType.SAVEFORWEB, options);
 
 	// SaveAs sometimes writes a huge amount of XML in the PNG. Ignore it or use Oxipng to make smaller PNGs.
 
 	//bao chi yuan lai de DPI
 	var options = new PNGSaveOptions();
 	options.compression = 6;
-	activeDocument.saveAs(file, options, true, Extension.LOWERCASE); 
+	activeDocument.saveAs(file, options, true, Extension.LOWERCASE);
 }
+function sortString (str) {
+	var strlist=str.split("/");
+	var tStr="";
+	for (var i = strlist.length - 1; i >= 0; i--)
+	{
+		tStr+=strlist[i];
+		 if(i!=0)
+		 	tStr+="/";
+	}
+	return tStr;
+}
+function deleteDocumentAncestorsMetadata() {
+    whatApp = String(app.name);//String version of the app name
+    if(whatApp.search("Photoshop") > 0) { //Check for photoshop specifically, or this will cause errors
+    //Function Scrubs Document Ancestors from Files
+        if(!documents.length) {
+            alert("There are no open documents. Please open a file to run this script.")
+        return;
+}
+    if (ExternalObject.AdobeXMPScript == undefined) ExternalObject.AdobeXMPScript = new ExternalObject("lib:AdobeXMPScript");
+    var xmp = new XMPMeta( activeDocument.xmpMetadata.rawData);
+    // Begone foul Document Ancestors!
+    xmp.deleteProperty(XMPConst.NS_PHOTOSHOP, "DocumentAncestors");
+    app.activeDocument.xmpMetadata.rawData = xmp.serialize();
+    }
+}
+//Now run the function to remove the document ancestors

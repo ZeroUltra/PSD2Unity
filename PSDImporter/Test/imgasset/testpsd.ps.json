@@ -12,9 +12,11 @@
 	{"pngname":"aabb","id":151,"x":121,"y":451,"width":242,"height":202},
 	{"pngname":"bg","id":179,"x":360,"y":640,"width":720,"height":1280}
 	],
-	"layer1":[
-	{"pngname":"p1","id":177,"x":457.5,"y":1033.5,"width":525,"height":359},
-	{"pngname":"p2","id":175,"x":320,"y":737.5,"width":640,"height":371},
+	"组1/组2":[
 	{"pngname":"p3","id":176,"x":360,"y":374,"width":720,"height":628}
+	],
+	"组1":[
+	{"pngname":"p1","id":177,"x":457.5,"y":1033.5,"width":525,"height":359},
+	{"pngname":"p2","id":175,"x":320,"y":737.5,"width":640,"height":371}
 	]
 }}

@@ -39,19 +39,29 @@ namespace PSDImporter
             foreach (var item in listpngDatas)
             {
                 string group = item.groupName == "root" ? string.Empty : item.groupName; //有没有图层组
-                string pngpath = $"{selectionAssetFolder}{group}/{item.pngName}.png";  //图片路径
-
+                string pngpath = $"{selectionAssetFolder}/{group}/{item.pngName}.png";  //图片路径
                 SpriteRenderer sr = null;
                 if (!string.IsNullOrEmpty(group))
                 {
-                    if (rootTrans.transform.Find(group) == null)
+                    //路径:Bg/aa/bb
+                    var paths = group.Split("/");
+                    Transform tranParent = rootTrans;
+                    foreach (var itemPath in paths)
                     {
-                        var go = CreateGo<Transform>(group, rootTrans);
-                        go.transform.localPosition = Vector3.zero;
-                        go.SetAsFirstSibling();
+                        var child = tranParent.Find(itemPath);
+                        if (child == null)
+                        {
+                            var go = CreateGo<Transform>(itemPath, tranParent);
+                            go.transform.localPosition = Vector3.zero;
+                            go.SetAsFirstSibling();
+                            tranParent = go;
+                        }
+                        else
+                            tranParent = child;
                     }
-                    sr = CreateGo<SpriteRenderer>(item.pngName, rootTrans.transform.Find(group));
+                    sr = CreateGo<SpriteRenderer>(item.pngName, tranParent);
                 }
+                //PS导出时候没有勾选use group
                 else
                 {
                     sr = CreateGo<SpriteRenderer>(item.pngName, rootTrans);
@@ -96,19 +106,29 @@ namespace PSDImporter
             {
                 PngData item = listpngDatas[i];
                 string group = item.groupName == "root" ? string.Empty : item.groupName; //组
-                string pngpath = $"{selectionAssetFolder}{group}/{item.pngName}.png";
+                string pngpath = $"{selectionAssetFolder}/{group}/{item.pngName}.png";
 
                 Image img = null;
                 if (!string.IsNullOrEmpty(group))
                 {
-                    if (rootRectTrans.transform.Find(group) == null)
+                    var paths = group.Split("/");
+                    RectTransform tranParent = rootRectTrans;
+                    foreach (var itemPath in paths)
                     {
-                        var go = CreateGo<RectTransform>(group, rootRectTrans);
-                        go.localPosition = Vector3.zero;
+                        var child = tranParent.Find(itemPath) as RectTransform;
+                        if (child == null)
+                        {
+                            var go = CreateGo<RectTransform>(itemPath, tranParent);
+                            go.transform.localPosition = Vector3.zero;
+                            tranParent = go;
+                        }
+                        else
+                            tranParent = child;
                     }
-                    img = CreateGo<Image>(item.pngName, rootRectTrans.transform.Find(group));
+                    img = CreateGo<Image>(item.pngName, tranParent);
                     //TODO:可以根据item.pngName 自行添加其他UI组件
                 }
+                //PS导出时候没有勾选use group
                 else
                     img = CreateGo<Image>(item.pngName, rootRectTrans);//TODO:可以根据item.pngName 自行添加其他UI组件
 
@@ -124,7 +144,7 @@ namespace PSDImporter
             }
             rootRectTrans.transform.localPosition = Vector3.zero;
             rootRectTrans.transform.localScale = Vector3.one;
-            CreatePrefab(rootRectTrans.gameObject, rootRectTrans.gameObject.name + "_UI");
+            CreatePrefab(rootRectTrans.gameObject, "UI_"+rootRectTrans.gameObject.name);
         }
 
         private static T CreateGo<T>(string goName, Transform parent) where T : Component

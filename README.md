@@ -46,6 +46,13 @@ PSD生成UGUI界面和场景
 
 ---
 
+### ChangeLog
+
+#### 1.2
+
+* 修复User groups(按组导出)时没有按照ps中结构正确生成组的bug
+* 添加了导出png图片过大问题,也就是导出时写入了xmp数据导致图片内存异常大
+
 ### 参考
 
  ❤️ ❤️ ❤️ ❤️ ❤️
@@ -53,3 +60,6 @@ PSD生成UGUI界面和场景
 [Spine 2D - LayersToPNG.jsx fix for Photoshop CC (github.com)](https://gist.github.com/nzhul/5ef666d5960423fed0de)
 
 [EsotericSoftware/spine-scripts: Scripts to export from PhotoShop and other tools to Spine's JSON data format. (github.com)](https://github.com/EsotericSoftware/spine-scripts)
+
+[解决Photoshop CC导出JPG文件过大的问题)](https://www.peb.cc/windows/48.html)
+
