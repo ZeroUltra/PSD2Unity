@@ -63,3 +63,6 @@ PSD生成UGUI界面和场景
 
 [解决Photoshop CC导出JPG文件过大的问题)](https://www.peb.cc/windows/48.html)
 
+### 其他
+
+由于使用了`Newtonsoft.Json`(unity2021.3.16自带了),如果提示已存在该dll,那么删除本插件的`Newtonsoft.Json`就好
