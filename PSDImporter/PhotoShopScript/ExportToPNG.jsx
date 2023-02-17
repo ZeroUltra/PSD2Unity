@@ -654,16 +654,15 @@ function savePNG (file) {
 	// SaveAs sometimes writes a huge amount of XML in the PNG. Ignore it or use Oxipng to make smaller PNGs.
     if(indexOf (arraypngs, file.fullName)==-1)
     {
-        //不存在则添加到数组
         arraypngs.push(file.fullName);
         var options = new PNGSaveOptions();
         options.compression = 6;
         activeDocument.saveAs(file, options, true, Extension.LOWERCASE);
-     }
+       }
    else
    {
-        alert("同一个组下存在相同名称图层:"+file.name,"Error","Error");
-   }
+        alert("exists same texure:"+file.name,"Error","Error");
+     }
 }
 function sortString (str) {
 	var strlist=str.split("/");
@@ -691,4 +690,3 @@ function deleteDocumentAncestorsMetadata() {
     app.activeDocument.xmpMetadata.rawData = xmp.serialize();
     }
 }
-//Now run the function to remove the document ancestors
