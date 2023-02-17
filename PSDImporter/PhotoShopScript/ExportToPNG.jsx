@@ -28,8 +28,9 @@ const saveDirID = stringIDToTypeID("saveDir");
 //const paddingID = stringIDToTypeID("padding");
 
 var psdName="";
-
 var originalDoc;
+var arraypngs=[];
+
 try {
 	originalDoc = app.activeDocument;
 } catch (ignored) {}
@@ -40,9 +41,10 @@ showDialog();
 
 function run () {
 	deleteDocumentAncestorsMetadata(); 
+    arraypngs=[];
 	saveSettings();
 	showProgress();
-
+       
 	// create path
 	if(!endsWith(saveDir,"/"))
 		 saveDir+="/";
@@ -88,13 +90,16 @@ function run () {
 	// Collect and hide layers.
 	var layers = [];
 	collectLayers(activeDocument, layers);
-	var layersCount = layers.length;
 
+    //for(var i=0,i<layers.length,i++)
+    //{
+           //  alert(layers[i].name);
+       // }
+    //if(haveSameTex)return;
+    //var layers=activeDocument.layers;
+	var layersCount = layers.length;
 	storeHistory();
-	//var json='{"sort":[\n';
 	var json='{\n"data":{';
-	// json+=saveDir+"\n";
-	// json+=imagesFolder+"\n";
 	json+='"width":'+activeDocument.width.as("px")+",";
 	json+='"height":'+activeDocument.height.as("px");
 	json+="},\n";
@@ -149,15 +154,16 @@ function run () {
 	 json += '\n],\n"pngdata":{\n';
 
 	// Output skins.
+    
 	var skinsCount = countAssocArray(skins);
 	var skinIndex = 0;
 	for (var skinName in skins) {
 		if (!skins.hasOwnProperty(skinName)) continue;
-
 		var skinLayers = skins[skinName];
 		var skinLayersCount = skinLayers.length;
 		var skinLayerIndex = 0;
 
+		//out group  with folder
 		var skname="";
 		if(skinName!="root")
 		{
@@ -190,6 +196,7 @@ function run () {
 		for (var i = skinLayersCount - 1; i >= 0; i--) {
 			var layer = skinLayers[i];
 			var slotName = layerName(layer);
+          
 			var placeholderName, attachmentName;
 			if (skinName == "root") {
 				placeholderName = slotName;
@@ -226,6 +233,7 @@ function run () {
 				if(groupsAsSkins){
 					if (skinName != "root")
 					{
+						//create foloder
 						new Folder(saveDir + skname).create();
 						savePNG(new File(saveDir+skname+ attachmentName + ".png"));
 					} 
@@ -351,7 +359,7 @@ function showDialog () {
 		return;
 	}
 
-	var dialog = new Window("dialog", "ExportToPNG1.2");
+	var dialog = new Window("dialog", "ExportToPNG1.3");
 	dialog.alignChildren = "fill";
 
 	var checkboxGroup = dialog.add("group");
@@ -542,7 +550,8 @@ function restoreHistory () {
 function collectLayers (layer, collect) {
 	for (var i = 0, n = layer.layers.length; i < n; i++) {
 		var child = layer.layers[i];
-		if (ignoreHiddenLayers && !child.visible) continue;
+		if (ignoreHiddenLayers && !child.visible)continue;
+    
 		if (child.bounds[2] == 0 && child.bounds[3] == 0) continue;
 		if (child.layers && child.layers.length > 0)
 			collectLayers(child, collect);
@@ -642,13 +651,19 @@ function savePNG (file) {
 	// options.interlaced = false;
 	// options.includeProfile = false;
 	// activeDocument.exportDocument(file, ExportType.SAVEFORWEB, options);
-
 	// SaveAs sometimes writes a huge amount of XML in the PNG. Ignore it or use Oxipng to make smaller PNGs.
-
-	//bao chi yuan lai de DPI
-	var options = new PNGSaveOptions();
-	options.compression = 6;
-	activeDocument.saveAs(file, options, true, Extension.LOWERCASE);
+    if(indexOf (arraypngs, file.fullName)==-1)
+    {
+        //不存在则添加到数组
+        arraypngs.push(file.fullName);
+        var options = new PNGSaveOptions();
+        options.compression = 6;
+        activeDocument.saveAs(file, options, true, Extension.LOWERCASE);
+     }
+   else
+   {
+        alert("同一个组下存在相同名称图层:"+file.name,"Error","Error");
+   }
 }
 function sortString (str) {
 	var strlist=str.split("/");
