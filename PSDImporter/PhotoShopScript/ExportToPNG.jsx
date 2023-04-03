@@ -1,4 +1,4 @@
-// This script exports photoshop layers as individual PNGs. It also
+﻿// This script exports photoshop layers as individual PNGs. It also
 // writes a JSON file that can be imported into Spine where the images
 // will be displayed in the same positions and draw order.
 
@@ -661,7 +661,9 @@ function savePNG (file) {
        }
    else
    {
-        alert("exists same texure:"+file.name,"Error","Error");
+        alert("existx same texture    name:->"+file.name);
+        //alert("exists same texure:"+file.name,"Error","Error");
+       
      }
 }
 function sortString (str) {
