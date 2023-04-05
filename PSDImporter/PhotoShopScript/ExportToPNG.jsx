@@ -97,24 +97,22 @@ function run () {
        // }
     //if(haveSameTex)return;
     //var layers=activeDocument.layers;
-	var layersCount = layers.length;
-	storeHistory();
-	var json='{\n"data":{';
-	json+='"width":'+activeDocument.width.as("px")+",";
-	json+='"height":'+activeDocument.height.as("px");
-	json+="},\n";
-	json+='"sort":[\n';
-	// Store the slot names and layers for each skin.
 	
+	storeHistory();
+	var json='{\n"canvas":{';
+	json+='"width":'+activeDocument.width.as("px")+","+'"height":'+activeDocument.height.as("px")+"},";
+	//json+='"sort":[\n';
+	// Store the slot names and layers for each skin.
+
+	var layersCount = layers.length;
 	var slots = {}, skins = { "root": [] };
 	for (var i = layersCount - 1; i >= 0; i--) {
 		var layer = layers[i];
-
-		json += '\t{"name":"' + layer.name+ '","id":"' + layer.id + '","index":"' + i + '"}';
-		if(i>0)
-		{
-			json += ",\n";
-		}
+		// json += '\t{"name":"' + layer.name+ '","id":"' + layer.id + '","index":"' + i + '"}';
+		// if(i>0)
+		// {
+		// 	json += ",\n";
+		// }
 		//Use groups as skin names.
 		var potentialSkinName = trim(layer.parent.name);
 		var layerGroupSkin = potentialSkinName.indexOf("-NOSKIN") == -1;
@@ -125,34 +123,8 @@ function run () {
 		skinLayers[skinLayers.length] = layer;
 		slots[layerName(layer)] = true;
 	}
-
-	// Output skeleton and bones.
-	//var json = '{"skeleton":{"images":"' + relsaveDir + '"},\n"bones":[{"name":"root"}],\n"slots":[\n';
-	 //var json = '{"PNGs":{\n';
-	// var json='{"sort":[\n';
-	// // Output slots.
-
-	// var slotsCount = countAssocArray(slots);
-	// var slotIndex = 0;
-	// for (var slotName in slots) {
-	// 	//if (!slots.hasOwnProperty(slotName)) continue;
-	// 	// Use image prefix if slot's attachment is in the default skin.		
-	// 	var attachmentName = slotName;
-	// 	// var skinn=skinName;
-	// 	// var defaultSkinLayers = skins[skinName];
-	// 	// 	for (var i = defaultSkinLayers.length - 1; i >= 0; i--) {
-	// 	// 		if (layerName(defaultSkinLayers[i]) == slotName) {
-	// 	// 			attachmentName = slotName;
-	// 	// 			break;
-	// 	// 		}
-	// 	// 	}
-	// 	//json += '\t{"name":"' + slotName + '","bone":"' + skinn + '","attachment":"' + attachmentName + '"}';
-	// 	json += '\t"' + slotName  + '"';
-	// 	slotIndex++;
-	// 	json += slotIndex < slotsCount ? ",\n" : "\n";
-	// 	}
-	 json += '\n],\n"pngdata":{\n';
-
+	//json += '\n],\n"pngdata":{\n';
+	json += '\n"pngdata":{\n';
 	// Output skins.
     
 	var skinsCount = countAssocArray(skins);
@@ -164,9 +136,11 @@ function run () {
 		var skinLayerIndex = 0;
 
 		//out group  with folder
+		json += '\t"';
 		var skname="";
 		if(skinName!="root")
 		{
+			json += "/";
 			var group=skins[skinName][0].parent;
 			if(group!=null)
 			{
@@ -186,12 +160,13 @@ function run () {
 				}
 			}
 		}
+		//当为root
 		else 
 			skname=skinName;
 
 		skname=sortString(skname);
 
-		json += '\t"' + skname +'":[\n';
+		json += skname +'/":\n\t[\n';
 
 		for (var i = skinLayersCount - 1; i >= 0; i--) {
 			var layer = skinLayers[i];
@@ -259,7 +234,19 @@ function run () {
 			// }
 
 			//json += '\t"' + slotName + '":{'+ '"x":' + x + ',"y":' + y + ',"width":' + Math.round(width) + ',"height":' + Math.round(height) + '}';
-			json += '\t{"pngname":"' + slotName + '","id":' + layer.id + ',"x":' + x + ',"y":' + y + ',"width":' + Math.round(width) + ',"height":' + Math.round(height) + '}';
+			
+            //找到索引
+			var index=-1;
+			for (var b = 0; b <=layersCount;b++)
+            {
+                if(layer==layers[b])
+                {
+					index=b;
+					index=(layersCount-1)-index;//倒序的
+					break;
+                }
+            }
+			json += '\t\t{"pngname":"' + slotName + '","id":' + layer.id+ ',"index":' + index+ ',"x":' + x + ',"y":' + y + ',"width":' + Math.round(width) + ',"height":' + Math.round(height) + '}';
 			//json += '\t\t"' + layer.id + '":{'+ '"x":' + x + ',"y":' + y + ',"width":' + Math.round(width) + ',"height":' + Math.round(height) + '}';
 			// if (attachmentName == placeholderName) {
 			// } else {
@@ -275,7 +262,7 @@ function run () {
 		skinIndex++;
 		json += skinIndex < skinsCount ? ",\n" : "\n";
 	}
-	json += '}}';
+	json += '}\n}';
 
 	activeDocument.close(SaveOptions.DONOTSAVECHANGES);
 
@@ -431,7 +418,7 @@ function showDialog () {
 		var btnBrowse =textGroup.add("button",undefined,"Browse");
 		btnBrowse.preferredSize=[40,15];
 		btnBrowse.onClick=function(){
-		 	var outputFolder=Folder.selectDialog("ѡ??????¼");
+		 	var outputFolder=Folder.selectDialog("select folder");
 		 	if(outputFolder!=null)
 		 	{
 				saveDirText.text=outputFolder;
@@ -677,6 +664,7 @@ function sortString (str) {
 	}
 	return tStr;
 }
+//去除文件大数据 防止保存过大
 function deleteDocumentAncestorsMetadata() {
     whatApp = String(app.name);//String version of the app name
     if(whatApp.search("Photoshop") > 0) { //Check for photoshop specifically, or this will cause errors
