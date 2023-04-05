@@ -1,0 +1,19 @@
+{
+"canvas":{"width":720,"height":1280},
+"pngdata":{
+	"root/":
+	[
+		{"pngname":"aabb","id":151,"index":2,"x":79,"y":539,"width":158,"height":202},
+		{"pngname":"bg","id":179,"index":0,"x":360,"y":640,"width":720,"height":1280}
+	],
+	"/bbb/":
+	[
+		{"pngname":"p23","id":195,"index":1,"x":294,"y":573,"width":580,"height":368}
+	],
+	"/aa/":
+	[
+		{"pngname":"p2","id":187,"index":4,"x":330,"y":1094.5,"width":660,"height":371},
+		{"pngname":"p3","id":186,"index":3,"x":370,"y":309.5,"width":700,"height":619}
+	]
+}
+}

@@ -35,41 +35,32 @@ namespace PSDImporter
             //父对象
             var rootTrans = CreateGo<Transform>(new DirectoryInfo(selectionAssetFolder).Name, null);
             rootTrans.transform.position = new Vector3(canvasWH.width * 0.01f * 0.5f, canvasWH.height * 0.01f * 0.5f, 0f);
-            int count = listpngDatas.Count - 1;
             foreach (var item in listpngDatas)
             {
-                string group = item.groupName == "root" ? string.Empty : item.groupName; //有没有图层组
-                string pngpath = $"{selectionAssetFolder}/{group}/{item.pngName}.png";  //图片路径
+                string group = item.groupName == "root/" ? "/" : item.groupName; //有没有图层组
+                string pngpath = $"{selectionAssetFolder}{group}{item.pngName}.png";  //图片路径
+
                 SpriteRenderer sr = null;
-                if (!string.IsNullOrEmpty(group))
+                Transform tranParent = rootTrans;
+                if (group != "/")
                 {
-                    //路径:Bg/aa/bb
                     var paths = group.Split("/");
-                    Transform tranParent = rootTrans;
                     foreach (var itemPath in paths)
                     {
+                        //找到父对象 如果没有则创建
                         var child = tranParent.Find(itemPath);
                         if (child == null)
                         {
-                            var go = CreateGo<Transform>(itemPath, tranParent);
-                            go.transform.localPosition = Vector3.zero;
-                            go.SetAsFirstSibling();
-                            tranParent = go;
+                            child = CreateGo<Transform>(itemPath, tranParent);
+                            child.transform.localPosition = Vector3.zero;
                         }
-                        else
-                            tranParent = child;
+                        tranParent = child;
                     }
-                    sr = CreateGo<SpriteRenderer>(item.pngName, tranParent);
                 }
-                //PS导出时候没有勾选use group
-                else
-                {
-                    sr = CreateGo<SpriteRenderer>(item.pngName, rootTrans);
-                }
-                sr.transform.SetAsFirstSibling();
+                sr = CreateGo<SpriteRenderer>(item.pngName, tranParent);
+                //sr.transform.SetAsLastSibling();
                 sr.transform.position = new Vector3(item.x * 0.01f, item.y * 0.01f, 0);
-                //倒序排列
-                sr.sortingOrder = count - item.index;
+                sr.sortingOrder = item.index; //倒序排列
 
                 var sp = (Sprite)AssetDatabase.LoadAssetAtPath(pngpath, typeof(Sprite));
                 if (sp != null)
@@ -87,9 +78,9 @@ namespace PSDImporter
         private static void CreateUGUI()
         {
             Transform canvasTrans = null;
+            //创建canvas
             if (GameObject.FindObjectOfType<Canvas>() == null)
             {
-                //创建canvas
                 bool menuitem = EditorApplication.ExecuteMenuItem("GameObject/UI/Canvas");
                 if (menuitem == false)
                     canvasTrans = CreateGo<Canvas>("Canvas", null).transform;
@@ -101,37 +92,33 @@ namespace PSDImporter
             rootRectTrans.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, canvasWH.width);
             rootRectTrans.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, canvasWH.height);
 
-            //UGUI 排序 谁在排序靠下 优先显示
-            for (int i = listpngDatas.Count - 1; i >= 0; i--)
+            //UGUI 排序 排序靠下 优先显示
+            foreach (var item in listpngDatas)
             {
-                PngData item = listpngDatas[i];
-                string group = item.groupName == "root" ? string.Empty : item.groupName; //组
-                string pngpath = $"{selectionAssetFolder}/{group}/{item.pngName}.png";
+                //PngData item = listpngDatas[i];
+                string group = item.groupName == "root/" ? "/" : item.groupName; //有没有图层组
+                string pngpath = $"{selectionAssetFolder}{group}{item.pngName}.png";  //图片路径
 
                 Image img = null;
-                if (!string.IsNullOrEmpty(group))
+                RectTransform tranParent = rootRectTrans;
+                if (group != "/")
                 {
                     var paths = group.Split("/");
-                    RectTransform tranParent = rootRectTrans;
                     foreach (var itemPath in paths)
                     {
+                        //找到父对象 如果没有则创建
                         var child = tranParent.Find(itemPath) as RectTransform;
                         if (child == null)
                         {
-                            var go = CreateGo<RectTransform>(itemPath, tranParent);
-                            go.transform.localPosition = Vector3.zero;
-                            tranParent = go;
+                            child = CreateGo<RectTransform>(itemPath, tranParent);
+                            child.transform.localPosition = Vector3.zero;
                         }
-                        else
-                            tranParent = child;
+                        tranParent = child;
                     }
-                    img = CreateGo<Image>(item.pngName, tranParent);
-                    //TODO:可以根据item.pngName 自行添加其他UI组件
                 }
-                //PS导出时候没有勾选use group
-                else
-                    img = CreateGo<Image>(item.pngName, rootRectTrans);//TODO:可以根据item.pngName 自行添加其他UI组件
-
+                //TODO:可以根据item.pngName 自行添加其他UI组件
+                img = CreateGo<Image>(item.pngName, tranParent);
+                img.rectTransform.position = new Vector3(item.x, item.y, 0);
                 var sp = (Sprite)AssetDatabase.LoadAssetAtPath(pngpath, typeof(Sprite));
                 if (sp != null)
                 {
@@ -140,18 +127,16 @@ namespace PSDImporter
                 }
                 else
                     Debug.LogError($"not found sprite at: {pngpath}");
-                img.rectTransform.position = new Vector3(item.x, item.y, 0);
             }
             rootRectTrans.transform.localPosition = Vector3.zero;
             rootRectTrans.transform.localScale = Vector3.one;
-            CreatePrefab(rootRectTrans.gameObject, "UI_"+rootRectTrans.gameObject.name);
+            CreatePrefab(rootRectTrans.gameObject, "UI_" + rootRectTrans.gameObject.name);
         }
 
         private static T CreateGo<T>(string goName, Transform parent) where T : Component
         {
             GameObject go = new GameObject(goName);
             go.transform.SetParent(parent);
-
             if (typeof(T) != typeof(Transform))
             {
                 T t = go.AddComponent<T>();
@@ -163,7 +148,7 @@ namespace PSDImporter
 
         private static void CreatePrefab(GameObject prefab, string goname)
         {
-            var go = PrefabUtility.SaveAsPrefabAssetAndConnect(prefab, selectionAssetFolder + goname + ".prefab", InteractionMode.AutomatedAction);
+            var go = PrefabUtility.SaveAsPrefabAssetAndConnect(prefab, selectionAssetFolder + "/" + goname + ".prefab", InteractionMode.AutomatedAction);
             EditorGUIUtility.PingObject(go);
         }
     }
