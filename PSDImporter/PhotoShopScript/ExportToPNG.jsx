@@ -346,7 +346,7 @@ function showDialog () {
 		return;
 	}
 
-	var dialog = new Window("dialog", "ExportToPNG1.3");
+	var dialog = new Window("dialog", "ExportToPNG1.4");
 	dialog.alignChildren = "fill";
 
 	var checkboxGroup = dialog.add("group");
