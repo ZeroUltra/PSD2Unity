@@ -648,7 +648,7 @@ function savePNG (file) {
        }
    else
    {
-        alert("existx same texture    name:->"+file.name);
+        alert("exist same layer name =>"+file.name+"\n(同组下存在相同图层名,最终只会保存其一)");
         //alert("exists same texure:"+file.name,"Error","Error");
        
      }
