@@ -1,11 +1,11 @@
 # PSD2Unity
-PSD生成UGUI界面和场景
+PS中导出切图到Untiy生成UGUI界面和场景
 
 ## How to use
 
-1. 将`PSDImporter`导入到Unity
+1. 通过UnityPackageManager导入包
 
-2. 将ps脚本放在PS软件脚本文件夹
+2. 将`ExportToPNG` ps脚本放在PhotoShop软件`Scripts`文件夹
 
    ![image-20220219221748479](img/image-20220219221748479.png)
 
@@ -42,21 +42,27 @@ PSD生成UGUI界面和场景
 
    ![gif](img/1.gif)
 
-   
+6. 可以导入示例查看具体使用
+
+   ![](img/20230728172510.png)
 
 ---
 
 ### ChangeLog
 
-#### 1.4
+### 1.0.5
+
+* 修改成UnityPackage
+
+#### 1.0.4
 
 * 修改了json结构,更加清晰明了
 
-#### 1.3
+#### 1.0.3
 
 * 添加提示:同一个组下有相同图层名,导致未能正确保存问题
 
-#### 1.2
+#### 1.0.2
 
 * 修复User groups(按组导出)时没有按照ps中结构正确生成组的bug
 * 添加了导出png图片过大问题,也就是导出时写入了xmp数据导致图片内存异常大
@@ -73,4 +79,4 @@ PSD生成UGUI界面和场景
 
 ### 其他
 
-由于使用了`Newtonsoft.Json`(unity2021.3.16自带了),如果提示已存在该dll,那么删除本插件的`Newtonsoft.Json`就好
+由于使用了`Newtonsoft.Json`(至少版本>=unity2021.3.16自带了),如果提示已存在该dll,那么删除本插件的`Newtonsoft.Json`就好
