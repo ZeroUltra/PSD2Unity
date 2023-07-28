@@ -79,4 +79,7 @@ PS中导出切图到Untiy生成UGUI界面和场景
 
 ### 其他
 
-由于使用了`Newtonsoft.Json`(至少版本>=unity2021.3.16自带了),如果提示已存在该dll,那么删除本插件的`Newtonsoft.Json`就好
+由于使用了`Newtonsoft.Json`(至少版本>=unity2021.3.16自带了)
+
+如果提示缺失该程序集找到PSD2Unity下的`Editor/NewtonsoftJson~`把后面的`~`去除即可
+
