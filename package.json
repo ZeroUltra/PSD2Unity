@@ -8,14 +8,15 @@
   "licensesUrl": "https://github.com/ZeroUltra/PSD2Unity",
   "hideInEditor": false,
   "dependencies": {"com.unity.nuget.newtonsoft-json": "3.2.1"},
-  "keywords": [
-    "PSD"
-  ],
+  "keywords": ["PSD"],
   "samples": [
     {
       "displayName": "Test",
       "description": "测试工程包含一个psd",
       "path": "Samples~/Test"
     }
-  ]
+  ],
+  "author": {
+    "name": "ZeroUltra"
+  }
 }
