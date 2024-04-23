@@ -270,7 +270,7 @@ function run () {
 	if (writeJson) {
 		var name = decodeURI(originalDoc.name);
 		name = name.substring(0, name.indexOf("."));
-		var file = new File(saveDir + name + ".ps.json");
+		var file = new File(saveDir + name + ".ps.data");
 		file.remove();
 		file.open("w", "TEXT");
 		file.lineFeed = "\n";
@@ -338,7 +338,7 @@ function incrProgress (text) {
 
 function showDialog () {
 	if (!originalDoc) {
-		alert("Please open a document before running the ExportToPNG script.");
+		alert("Please open a document before running the ExportToPNG script.(请先保存psd,在使用)");
 		return;
 	}
 	if (!hasFilePath()) {
@@ -357,7 +357,7 @@ function showDialog () {
 			writePngsCheckbox.value = writePngs;
 			var writeTemplateCheckbox = group.add("checkbox", undefined, " Write a template PNG");
 			writeTemplateCheckbox.value = writeTemplate;
-			var writeJsonCheckbox = group.add("checkbox", undefined, " Write JSON");
+			var writeJsonCheckbox = group.add("checkbox", undefined, " Write Datas");
 			writeJsonCheckbox.value = writeJson;
 		group = checkboxGroup.add("group")
 			group.orientation = "column";

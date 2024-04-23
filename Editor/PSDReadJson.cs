@@ -24,6 +24,7 @@ namespace PSDImporter
     }
     public class PSDReadJson
     {
+        const string exname = ".ps.data";
         public static List<PngData> ReadJson(ref string selectionAssetFolder, ref (int width, int height) canvasWH)
         {
             List<PngData> listpngDatas = new List<PngData>();
@@ -32,7 +33,7 @@ namespace PSDImporter
             {
                 string jsonpath = Application.dataPath + AssetDatabase.GetAssetPath(obj).Replace("Assets", ""); //json路径
                 selectionAssetFolder = Path.GetDirectoryName(AssetDatabase.GetAssetPath(obj)); //资源文件夹
-                if (jsonpath.EndsWith(".ps.json"))
+                if (jsonpath.EndsWith(exname))
                 {
                     #region 读取json
                     var jsonJo = JObject.Parse(File.ReadAllText(jsonpath));
@@ -79,10 +80,10 @@ namespace PSDImporter
                     });
                 }
                 else
-                    Debug.LogError("该文件不是 .ps.json");
+                    Debug.LogError("该文件不是 "+ exname);
             }
             else 
-                Debug.LogError("请选择 .ps.json 文件");
+                Debug.LogError($"请选择 {exname} 文件");
             return listpngDatas;
         }
     }

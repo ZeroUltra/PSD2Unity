@@ -34,7 +34,9 @@ PS中导出切图到Untiy生成UGUI界面和场景
 
    ***
 
-   
+   tip:添加快捷键
+
+   ![](img/ps.png)
 
 3. 将生成的文件导入Unity中,然后将图片格式设置成`Sprite`
 
@@ -49,6 +51,10 @@ PS中导出切图到Untiy生成UGUI界面和场景
 ---
 
 ### ChangeLog
+
+### 1.0.6
+
+* 之前保存为.ps.json格式,现在改成.ps.data格式(.json会默认为unity的textasset,会参与打AssetBundle)
 
 ### 1.0.5
 
