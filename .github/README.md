@@ -54,7 +54,7 @@ PS中导出切图到Untiy生成UGUI界面和场景
 
 ### 1.0.6
 
-* 之前保存为.ps.json格式,现在改成.ps.data格式(.json会默认为unity的textasset,会参与打AssetBundle)
+* 之前保存为.ps.json格式,现在改成.ps.data格式(.json会默认为unity的textasset,会参与打AssetBundle, .data则不会,参考:[Unity - Manual: Text assets (unity3d.com)](https://docs.unity3d.com/Manual/class-TextAsset.html))
 
 ### 1.0.5
 
