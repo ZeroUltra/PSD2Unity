@@ -8,37 +8,50 @@ namespace PSDImporter
 {
     public class PSDCreateor
     {
-        static (int width, int height) canvasWH; //画布宽高
-        static List<PngData> listpngDatas;
-        static string selectionAssetFolder;
-
-        [MenuItem("Assets/PSDTools/PSD2Scene", priority = -100, validate = false)]
+        [MenuItem("Assets/PSDTools/PSD2Scene", priority = 500, validate = true)]
+        static bool PSDToSceneValidate()
+        {
+            return PSDReadJson.IsSelectionPSData();
+        }
+        [MenuItem("Assets/PSDTools/PSD2Scene", priority = 500, validate = false)]
         static void PSDToScene()
         {
-            listpngDatas = PSDReadJson.ReadJson(ref selectionAssetFolder, ref canvasWH);
-            if (listpngDatas.Count > 0)
-                CreateScene();
+            var obj = Selection.activeObject;
+            if (obj != null)
+            {
+                var psdData = PSDReadJson.ReadJson(AssetDatabase.GetAssetPath(obj));
+                CreateScene(psdData);
+            }
         }
-        [MenuItem("Assets/PSDTools/PSD2UGUI", priority = -99, validate = false)]
+
+        [MenuItem("Assets/PSDTools/PSD2UGUI", priority = 500, validate = true)]
+        static bool PSDToUGUIValidate()
+        {
+            return PSDReadJson.IsSelectionPSData();
+        }
+        [MenuItem("Assets/PSDTools/PSD2UGUI", priority = 500, validate = false)]
         static void PSDToUGUI()
         {
-            listpngDatas = PSDReadJson.ReadJson(ref selectionAssetFolder, ref canvasWH);
-            if (listpngDatas.Count > 0)
-                CreateUGUI();
+            var obj = Selection.activeObject;
+            if (obj != null)
+            {
+                var psdData = PSDReadJson.ReadJson(AssetDatabase.GetAssetPath(obj));
+                CreateUGUI(psdData);
+            }
         }
 
         /// <summary>
         /// 创建场景
         /// </summary>
-        private static void CreateScene()
+        private static void CreateScene(PSDData psdData)
         {
             //父对象
-            var rootTrans = CreateGo<Transform>(new DirectoryInfo(selectionAssetFolder).Name, null);
-            rootTrans.transform.position = new Vector3(canvasWH.width * 0.01f * 0.5f, canvasWH.height * 0.01f * 0.5f, 0f);
-            foreach (var item in listpngDatas)
+            var rootTrans = CreateGo<Transform>(new DirectoryInfo(psdData.psdAssetsFolder).Name, null);
+            rootTrans.transform.position = new Vector3(psdData.width * 0.01f * 0.5f, psdData.height * 0.01f * 0.5f, 0f);
+            foreach (var item in psdData.listPngData)
             {
                 string group = item.groupName == "root/" ? "/" : item.groupName; //有没有图层组
-                string pngpath = $"{selectionAssetFolder}{group}{item.pngName}.png";  //图片路径
+                string pngpath = $"{psdData.psdAssetsFolder}{group}{item.pngName}.png";  //图片路径
 
                 SpriteRenderer sr = null;
                 Transform tranParent = rootTrans;
@@ -69,13 +82,12 @@ namespace PSDImporter
                     Debug.LogError($"not found sprite at: {pngpath}");
             }
             rootTrans.transform.position = Vector3.zero;  //归0
-            CreatePrefab(rootTrans.gameObject, rootTrans.gameObject.name);
         }
 
         /// <summary>
         /// 创建UI
         /// </summary>
-        private static void CreateUGUI()
+        private static void CreateUGUI(PSDData psdData)
         {
             Transform canvasTrans = null;
             //创建canvas
@@ -87,17 +99,17 @@ namespace PSDImporter
             }
             if (canvasTrans == null)
                 canvasTrans = GameObject.FindObjectOfType<Canvas>().transform;
-            var rootRectTrans = CreateGo<RectTransform>(new DirectoryInfo(selectionAssetFolder).Name, canvasTrans);
-            rootRectTrans.position = new Vector3(canvasWH.width * 0.5f, canvasWH.height * 0.5f, 0);
-            rootRectTrans.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, canvasWH.width);
-            rootRectTrans.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, canvasWH.height);
+            var rootRectTrans = CreateGo<RectTransform>(new DirectoryInfo(psdData.psdAssetsFolder).Name, canvasTrans);
+            rootRectTrans.position = new Vector3(psdData.width * 0.5f, psdData.height * 0.5f, 0);
+            rootRectTrans.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, psdData.width);
+            rootRectTrans.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, psdData.height);
 
             //UGUI 排序 排序靠下 优先显示
-            foreach (var item in listpngDatas)
+            foreach (var item in psdData.listPngData)
             {
                 //PngData item = listpngDatas[i];
                 string group = item.groupName == "root/" ? "/" : item.groupName; //有没有图层组
-                string pngpath = $"{selectionAssetFolder}{group}{item.pngName}.png";  //图片路径
+                string pngpath = $"{psdData.psdAssetsFolder}{group}{item.pngName}.png";  //图片路径
 
                 Image img = null;
                 RectTransform tranParent = rootRectTrans;
@@ -130,7 +142,6 @@ namespace PSDImporter
             }
             rootRectTrans.transform.localPosition = Vector3.zero;
             rootRectTrans.transform.localScale = Vector3.one;
-            CreatePrefab(rootRectTrans.gameObject, "UI_" + rootRectTrans.gameObject.name);
         }
 
         private static T CreateGo<T>(string goName, Transform parent) where T : Component
@@ -146,10 +157,10 @@ namespace PSDImporter
                 return go.transform as T;
         }
 
-        private static void CreatePrefab(GameObject prefab, string goname)
-        {
-            var go = PrefabUtility.SaveAsPrefabAssetAndConnect(prefab, selectionAssetFolder + "/" + goname + ".prefab", InteractionMode.AutomatedAction);
-            EditorGUIUtility.PingObject(go);
-        }
+        //private static void CreatePrefab(GameObject prefab, string goname)
+        //{
+        //    var go = PrefabUtility.SaveAsPrefabAssetAndConnect(prefab, selectionAssetFolder + "/" + goname + ".prefab", InteractionMode.AutomatedAction);
+        //    EditorGUIUtility.PingObject(go);
+        //}
     }
 }
