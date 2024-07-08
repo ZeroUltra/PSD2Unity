@@ -99,7 +99,7 @@ namespace PSDImporter
             }
             if (canvasTrans == null)
                 canvasTrans = GameObject.FindObjectOfType<Canvas>().transform;
-            var rootRectTrans = CreateGo<RectTransform>(new DirectoryInfo(psdData.psdAssetsFolder).Name, canvasTrans);
+            var rootRectTrans = CreateGo<RectTransform>(new DirectoryInfo(psdData.psdAssetsFolder).Name, canvasTrans,"UI");
             rootRectTrans.position = new Vector3(psdData.width * 0.5f, psdData.height * 0.5f, 0);
             rootRectTrans.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, psdData.width);
             rootRectTrans.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, psdData.height);
@@ -122,14 +122,14 @@ namespace PSDImporter
                         var child = tranParent.Find(itemPath) as RectTransform;
                         if (child == null)
                         {
-                            child = CreateGo<RectTransform>(itemPath, tranParent);
+                            child = CreateGo<RectTransform>(itemPath, tranParent, "UI");
                             child.transform.localPosition = Vector3.zero;
                         }
                         tranParent = child;
                     }
                 }
                 //TODO:可以根据item.pngName 自行添加其他UI组件
-                img = CreateGo<Image>(item.pngName, tranParent);
+                img = CreateGo<Image>(item.pngName, tranParent, "UI");
                 img.rectTransform.position = new Vector3(item.x, item.y, 0);
                 var sp = (Sprite)AssetDatabase.LoadAssetAtPath(pngpath, typeof(Sprite));
                 if (sp != null)
@@ -144,9 +144,13 @@ namespace PSDImporter
             rootRectTrans.transform.localScale = Vector3.one;
         }
 
-        private static T CreateGo<T>(string goName, Transform parent) where T : Component
+        private static T CreateGo<T>(string goName, Transform parent, string LayerName = null) where T : Component
         {
             GameObject go = new GameObject(goName);
+            if (!string.IsNullOrEmpty(LayerName))
+            {
+                go.layer = LayerMask.NameToLayer(LayerName);
+            }
             go.transform.SetParent(parent);
             if (typeof(T) != typeof(Transform))
             {
