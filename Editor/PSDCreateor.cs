@@ -3,11 +3,22 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor;
 using System.IO;
-using Newtonsoft.Json.Linq;
+
 namespace PSDImporter
 {
     public class PSDCreateor
     {
+        /// <summary>
+        /// 当创建2d找不到png时，响应事件 返回值true表示打印错误路径信息，false表示忽略错误
+        /// </summary>
+        public static event System.Func<string, SpriteRenderer, bool> OnMissingPngWith2D;
+
+        /// <summary>
+        /// 当创建UI找不到png时，响应事件 返回值true表示打印错误路径信息，false表示忽略错误
+        /// </summary>
+        public static event System.Func<string, Image, bool> OnMissingPngWithUI;
+
+
         [MenuItem("Assets/PSDTools/PSD2Scene", priority = 500, validate = true)]
         static bool PSDToSceneValidate()
         {
@@ -79,7 +90,17 @@ namespace PSDImporter
                 if (sp != null)
                     sr.sprite = sp;
                 else
-                    Debug.LogError($"not found sprite at: {pngpath}");
+                {
+                    if (OnMissingPngWith2D != null)
+                    {
+                        if (OnMissingPngWith2D.Invoke(pngpath, sr))
+                            Debug.LogError($"not found sprite at: {pngpath}");
+                    }
+                    else
+                    {
+                        Debug.LogError($"not found sprite at: {pngpath}");
+                    }
+                }
             }
             rootTrans.transform.position = Vector3.zero;  //归0
         }
@@ -99,7 +120,7 @@ namespace PSDImporter
             }
             if (canvasTrans == null)
                 canvasTrans = GameObject.FindObjectOfType<Canvas>().transform;
-            var rootRectTrans = CreateGo<RectTransform>(new DirectoryInfo(psdData.psdAssetsFolder).Name, canvasTrans,"UI");
+            var rootRectTrans = CreateGo<RectTransform>(new DirectoryInfo(psdData.psdAssetsFolder).Name, canvasTrans, "UI");
             rootRectTrans.position = new Vector3(psdData.width * 0.5f, psdData.height * 0.5f, 0);
             rootRectTrans.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, psdData.width);
             rootRectTrans.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, psdData.height);
@@ -138,7 +159,17 @@ namespace PSDImporter
                     img.SetNativeSize();
                 }
                 else
-                    Debug.LogError($"not found sprite at: {pngpath}");
+                {
+                    if (OnMissingPngWithUI != null)
+                    {
+                        if (OnMissingPngWithUI.Invoke(pngpath, img))
+                            Debug.LogError($"not found sprite at: {pngpath}");
+                    }
+                    else
+                    {
+                        Debug.LogError($"not found sprite at: {pngpath}");
+                    }
+                }
             }
             rootRectTrans.transform.localPosition = Vector3.zero;
             rootRectTrans.transform.localScale = Vector3.one;

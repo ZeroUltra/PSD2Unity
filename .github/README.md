@@ -52,6 +52,53 @@ PS中导出切图到Untiy生成UGUI界面和场景
 
 ### ChangeLog
 
+### 1.0.7
+
+* 增加了当未找到图时两个回调事件,方便使用通用的小图
+
+  ```c#
+  /// <summary>
+  /// 当创建2d找不到png时，响应事件 返回值true表示打印错误路径信息，false表示忽略错误
+  /// </summary>
+  public static event System.Func<string, SpriteRenderer, bool> OnMissingPngWith2D;
+  
+  /// <summary>
+  /// 当创建UI找不到png时，响应事件 返回值true表示打印错误路径信息，false表示忽略错误
+  /// </summary>
+  public static event System.Func<string, Image, bool> OnMissingPngWithUI;
+  
+  //使用示例
+  [InitializeOnLoadMethod]
+  static void InitMethod()
+  {
+      //监听psd创建通用小物体
+      PSDCreateor.OnMissingPngWith2D -= OnMissingPng;
+      PSDCreateor.OnMissingPngWith2D += OnMissingPng;
+  }
+  
+  private static bool OnMissingPng(string pngPath, SpriteRenderer sr)
+  {
+      if (pngPath.Contains("Common", StringComparison.OrdinalIgnoreCase))
+      {
+          string fileName = Path.GetFileName(pngPath);
+          string newPath = $"Assets/Assetbundle/sprites/common/{fileName}";
+          var sp = (Sprite)AssetDatabase.LoadAssetAtPath(newPath, typeof(Sprite));
+          if (sp != null)
+          {
+              sr.sprite = sp;
+          }
+          else
+          {
+              Debug.LogError("没有找到通用图：" + newPath);
+          }
+      }
+      return false;
+  }
+  
+  ```
+
+  
+
 ### 1.0.6
 
 * 之前保存为.ps.json格式,现在改成.ps.data格式(.json会默认为unity的textasset,会参与打AssetBundle, .data则不会,参考:[Unity - Manual: Text assets (unity3d.com)](https://docs.unity3d.com/Manual/class-TextAsset.html))
