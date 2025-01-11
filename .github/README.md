@@ -103,21 +103,21 @@ PS中导出切图到Untiy生成UGUI界面和场景
 
 * 之前保存为.ps.json格式,现在改成.ps.data格式(.json会默认为unity的textasset,会参与打AssetBundle, .data则不会,参考:[Unity - Manual: Text assets (unity3d.com)](https://docs.unity3d.com/Manual/class-TextAsset.html))
 * 不在自动生成Prefab预制体(自己手动拖一下吧)
-* 调整代码,将菜单order=500
+* 调整代码,将菜单order=1500
 
 ### 1.0.5
 
 * 修改成UnityPackage
 
-#### 1.0.4
+### 1.0.4
 
 * 修改了json结构,更加清晰明了
 
-#### 1.0.3
+### 1.0.3
 
 * 添加提示:同一个组下有相同图层名,导致未能正确保存问题
 
-#### 1.0.2
+### 1.0.2
 
 * 修复User groups(按组导出)时没有按照ps中结构正确生成组的bug
 * 添加了导出png图片过大问题,也就是导出时写入了xmp数据导致图片内存异常大

@@ -19,12 +19,12 @@ namespace PSDImporter
         public static event System.Func<string, Image, bool> OnMissingPngWithUI;
 
 
-        [MenuItem("Assets/PSDTools/PSD2Scene", priority = 500, validate = true)]
+        [MenuItem("Assets/PSDTools/PSD2Scene", priority = 1500, validate = true)]
         static bool PSDToSceneValidate()
         {
             return PSDReadJson.IsSelectionPSData();
         }
-        [MenuItem("Assets/PSDTools/PSD2Scene", priority = 500, validate = false)]
+        [MenuItem("Assets/PSDTools/PSD2Scene", priority = 1500, validate = false)]
         static void PSDToScene()
         {
             var obj = Selection.activeObject;
@@ -35,12 +35,12 @@ namespace PSDImporter
             }
         }
 
-        [MenuItem("Assets/PSDTools/PSD2UGUI", priority = 500, validate = true)]
+        [MenuItem("Assets/PSDTools/PSD2UGUI", priority = 1501, validate = true)]
         static bool PSDToUGUIValidate()
         {
             return PSDReadJson.IsSelectionPSData();
         }
-        [MenuItem("Assets/PSDTools/PSD2UGUI", priority = 500, validate = false)]
+        [MenuItem("Assets/PSDTools/PSD2UGUI", priority = 1501, validate = false)]
         static void PSDToUGUI()
         {
             var obj = Selection.activeObject;
