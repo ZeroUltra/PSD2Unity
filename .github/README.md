@@ -3,6 +3,8 @@ PS中导出切图到Untiy生成UGUI界面和场景
 
 ## How to use
 
+**注: 图层名不要重名,不然只会保存一个**
+
 1. 通过UnityPackageManager导入包
 
 2. 将`ExportToPNG` ps脚本放在PhotoShop软件`Scripts`文件夹
@@ -38,9 +40,9 @@ PS中导出切图到Untiy生成UGUI界面和场景
 
    ![](img/ps.png)
 
-3. 将生成的文件导入Unity中,然后将图片格式设置成`Sprite`
+4. 将生成的文件导入Unity中,然后将图片格式设置成`Sprite`
 
-4. 选中生成的`xxx.ps.json`,然后右键`PSDTools/PSD2Scene`或者`PSDTools/PSD2UGUI`生成界面
+5. 选中生成的`xxx.ps.json`,然后右键`PSDTools/PSD2Scene`或者`PSDTools/PSD2UGUI`生成界面
 
    ![gif](img/1.gif)
 
