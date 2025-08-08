@@ -116,7 +116,22 @@ function run () {
 		//Use groups as skin names.
 		var potentialSkinName = trim(layer.parent.name);
 		var layerGroupSkin = potentialSkinName.indexOf("-NOSKIN") == -1;
-		var skinName = (groupsAsSkins && layer.parent.typename == "LayerSet" && layerGroupSkin) ? potentialSkinName : "root";
+		//var skinName = (groupsAsSkins && layer.parent.typename == "LayerSet" && layerGroupSkin) ? potentialSkinName : "root";
+
+        var skinName = "root";
+        if (groupsAsSkins && layer.parent.typename == "LayerSet") {
+            var parent = layer.parent;
+            var path = [];
+            // 循环向上追溯父级组，直到根目录
+            while (parent && parent.typename == "LayerSet" && parent.name != psdName && parent.name != "Adobe Photoshop") {
+                path.unshift(trim(parent.name));
+                parent = parent.parent;
+            }
+            if (path.length > 0) {
+                skinName = path.join("/");
+            }
+}
+
 
 		var skinLayers = skins[skinName];
 		if (!skinLayers) skins[skinName] = skinLayers = [];
@@ -157,15 +172,15 @@ function run () {
 					}					
 					else
 						break;
+					
 				}
 			}
 		}
 		//当为root
 		else 
 			skname=skinName;
-
 		skname=sortString(skname);
-
+        
 		json += skname +'/":\n\t[\n';
 
 		for (var i = skinLayersCount - 1; i >= 0; i--) {
@@ -346,7 +361,7 @@ function showDialog () {
 		return;
 	}
 
-	var dialog = new Window("dialog", "ExportToPNG1.4");
+	var dialog = new Window("dialog", "ExportToPNG1.5");
 	dialog.alignChildren = "fill";
 
 	var checkboxGroup = dialog.add("group");
@@ -648,10 +663,9 @@ function savePNG (file) {
        }
    else
    {
-		alert("exist same layer name :"+decodeURI(file.name)+"\n(同组下存在相同图层名,最终只会保存其一)");
-        //alert("exists same texure:"+file.name,"Error","Error");
-       
-     }
+        alert("exist same layer name :"+decodeURI(file.name)+"\n(同组下存在相同图层名,最终只会保存其一)");
+        //alert("exists same texure:"+file.name,"Error","Error");   
+	}
 }
 function sortString (str) {
 	var strlist=str.split("/");

@@ -1,6 +1,6 @@
 {
   "name": "com.zeroultra.psd2unity",
-  "version": "1.0.7",
+  "version": "1.1.0",
   "displayName": "PSD2Unity",
   "description": "PSD导出切图到Untiy生成UGUI界面和场景",
   "documentationUrl": "https://github.com/ZeroUltra/PSD2Unity",
@@ -8,13 +8,6 @@
   "licensesUrl": "https://github.com/ZeroUltra/PSD2Unity",
   "dependencies": {"com.unity.nuget.newtonsoft-json": "3.2.1"},
   "keywords": ["PSD"],
-  "samples": [
-    {
-      "displayName": "Test",
-      "description": "测试工程包含一个psd",
-      "path": "Samples~/Test"
-    }
-  ],
   "author": {
     "name": "ZeroUltra"
   }
