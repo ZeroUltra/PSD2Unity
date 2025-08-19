@@ -1,10 +1,10 @@
 # PSD2Unity
-PS中导出切图到Untiy生成UGUI界面和场景
+PS中导出切图到Untiy生成UGUI界面或场景
 
 # 注意事项
 
-* **组名尽量不要重名(虽然1.1.0版本已经优化此功能,但建议还是不要组名重名)**
-* **同一个组下图层不要重名(不然只会保存其中一个)!!!**
+* **PS中组名尽量不要重名(虽然1.1.0版本已经优化此功能,但建议还是不要重名)**
+* **PS中同一个组下图层不要重名！！！(一个图层就是一张图，重名会导致只保存其中一个)**
 
 ## How to use
 
@@ -16,9 +16,9 @@ PS中导出切图到Untiy生成UGUI界面和场景
 
 3. PS中操作
 
-     ![image-20220219221854573](img/image-20220219221854573.png)
+      ![image-20220219221854573](img/image-20220219221854573.png)
 
-     ![image-20220219221920658](img/image-20220219221920658.png)
+      ![image-20220219221920658](img/image-20220219221920658.png)
 
    * `Write Layer Pngs`  将ps中图层导出png
    * `Ignore hidden Layer` 忽略隐藏图层 ,如果勾选则不导出PS中隐藏图层
@@ -26,8 +26,6 @@ PS中导出切图到Untiy生成UGUI界面和场景
    * `User groups` 是否使用组,勾选会按PS组导出
    * `Write Json` 是否导出json, Unity中会用到
    * `Trim Whitespace` 是否去除空白,不勾选则导出原始画布尺寸
-
-   ***
 
    
 
@@ -45,7 +43,7 @@ PS中导出切图到Untiy生成UGUI界面和场景
 
 4. 将生成的文件导入Unity中,然后将图片格式设置成`Sprite`
 
-5. 选中生成的`xxx.ps.json`,然后右键`PSDTools/PSD2Scene`或者`PSDTools/PSD2UGUI`生成界面
+5. 选中生成的`xxx.ps.data`,然后右键`PSDTools/PSD2Scene`或者`PSDTools/PSD2UGUI`生成界面
 
    ![gif](img/1.gif)
 
