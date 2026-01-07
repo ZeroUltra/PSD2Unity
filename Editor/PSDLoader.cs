@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace PSDImporter
 {
-    public struct PngData
+    public struct PicData
     {
         public string groupName;
         public string pngName;
@@ -28,15 +28,15 @@ namespace PSDImporter
         public string psdAssetsFolder;
         public int width;
         public int height;
-        public List<PngData> listPngData = new List<PngData>();
+        public List<PicData> listPngData = new List<PicData>();
     }
 
-    public class PSDReadJson
+    public class PSDLoader
     {
         const string exname = ".ps.data";
-        public static List<PngData> ReadJson(ref string selectionAssetFolder, ref (int width, int height) canvasWH)
+        public static List<PicData> ReadJson(ref string selectionAssetFolder, ref (int width, int height) canvasWH)
         {
-            List<PngData> listpngDatas = new List<PngData>();
+            List<PicData> listpngDatas = new List<PicData>();
             var obj = Selection.activeObject;
             if (obj != null)
             {
@@ -56,7 +56,7 @@ namespace PSDImporter
                         foreach (var pngdata in group.Value) //遍历所有图片
                         {
                             JObject jodata = (JObject)pngdata;
-                            var data = new PngData();
+                            var data = new PicData();
                             data.groupName = group.Name;
                             data.pngName = (string)jodata["pngname"];
                             data.id = (int)jodata["id"];
@@ -88,7 +88,6 @@ namespace PSDImporter
 
         public static PSDData ReadJson(string jsonPath)
         {
-
             if (jsonPath.EndsWith(exname))
             {
                 PSDData psdData = new PSDData();
@@ -104,7 +103,7 @@ namespace PSDImporter
                     foreach (var pngdata in group.Value) //遍历所有图片
                     {
                         JObject jodata = (JObject)pngdata;
-                        var data = new PngData();
+                        var data = new PicData();
                         data.groupName = group.Name;
                         data.pngName = (string)jodata["pngname"];
                         data.id = (int)jodata["id"];
@@ -139,6 +138,5 @@ namespace PSDImporter
             if (obj == null) return false;
             return AssetDatabase.GetAssetPath(obj).EndsWith(exname);
         }
-
     }
 }

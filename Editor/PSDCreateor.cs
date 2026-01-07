@@ -1,28 +1,30 @@
 using System.Collections.Generic;
+using System.IO;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEditor;
-using System.IO;
 
 namespace PSDImporter
 {
     public class PSDCreateor
     {
         /// <summary>
-        /// 当创建2d找不到png时，响应事件 返回值true表示打印错误路径信息，false表示忽略错误
+        /// 当创建找不到图片时响应该事件 返回值true表示打印错误路径信息，false表示忽略错误 <br/>
+        /// GameObject: 创建的物体 <br/>
+        /// string: 图片路径
         /// </summary>
-        public static event System.Func<string, SpriteRenderer, bool> OnMissingPngWith2D;
-
+        public static event System.Func<GameObject, string, bool> OnPicMissing;
         /// <summary>
-        /// 当创建UI找不到png时，响应事件 返回值true表示打印错误路径信息，false表示忽略错误
+        /// 当创建物体UI或2D物体触发 <br/>
+        /// GameObject: 创建的物体 <br/>
+        /// string: 图片名称
         /// </summary>
-        public static event System.Func<string, Image, bool> OnMissingPngWithUI;
-
+        public static event System.Action<GameObject, string> OnGameObjectCreated;
 
         [MenuItem("Assets/PSDTools/PSD2Scene", priority = 1500, validate = true)]
         static bool PSDToSceneValidate()
         {
-            return PSDReadJson.IsSelectionPSData();
+            return PSDLoader.IsSelectionPSData();
         }
         [MenuItem("Assets/PSDTools/PSD2Scene", priority = 1500, validate = false)]
         static void PSDToScene()
@@ -30,7 +32,7 @@ namespace PSDImporter
             var obj = Selection.activeObject;
             if (obj != null)
             {
-                var psdData = PSDReadJson.ReadJson(AssetDatabase.GetAssetPath(obj));
+                var psdData = PSDLoader.ReadJson(AssetDatabase.GetAssetPath(obj));
                 CreateScene(psdData);
             }
         }
@@ -38,7 +40,7 @@ namespace PSDImporter
         [MenuItem("Assets/PSDTools/PSD2UGUI", priority = 1501, validate = true)]
         static bool PSDToUGUIValidate()
         {
-            return PSDReadJson.IsSelectionPSData();
+            return PSDLoader.IsSelectionPSData();
         }
         [MenuItem("Assets/PSDTools/PSD2UGUI", priority = 1501, validate = false)]
         static void PSDToUGUI()
@@ -46,7 +48,7 @@ namespace PSDImporter
             var obj = Selection.activeObject;
             if (obj != null)
             {
-                var psdData = PSDReadJson.ReadJson(AssetDatabase.GetAssetPath(obj));
+                var psdData = PSDLoader.ReadJson(AssetDatabase.GetAssetPath(obj));
                 CreateUGUI(psdData);
             }
         }
@@ -82,7 +84,7 @@ namespace PSDImporter
                     }
                 }
                 sr = CreateGo<SpriteRenderer>(item.pngName, tranParent);
-                //sr.transform.SetAsLastSibling();
+                OnGameObjectCreated?.Invoke(sr.gameObject, item.pngName);
                 sr.transform.position = new Vector3(item.x * 0.01f, item.y * 0.01f, 0);
                 sr.sortingOrder = item.index; //倒序排列
 
@@ -91,9 +93,9 @@ namespace PSDImporter
                     sr.sprite = sp;
                 else
                 {
-                    if (OnMissingPngWith2D != null)
+                    if (OnPicMissing != null)
                     {
-                        if (OnMissingPngWith2D.Invoke(pngpath, sr))
+                        if (OnPicMissing.Invoke(sr.gameObject, pngpath))
                             Debug.LogError($"not found sprite at: {pngpath}");
                     }
                     else
@@ -151,6 +153,7 @@ namespace PSDImporter
                 }
                 //TODO:可以根据item.pngName 自行添加其他UI组件
                 img = CreateGo<Image>(item.pngName, tranParent, "UI");
+                OnGameObjectCreated?.Invoke(img.gameObject, item.pngName);
                 img.rectTransform.position = new Vector3(item.x, item.y, 0);
                 var sp = (Sprite)AssetDatabase.LoadAssetAtPath(pngpath, typeof(Sprite));
                 if (sp != null)
@@ -160,9 +163,9 @@ namespace PSDImporter
                 }
                 else
                 {
-                    if (OnMissingPngWithUI != null)
+                    if (OnPicMissing != null)
                     {
-                        if (OnMissingPngWithUI.Invoke(pngpath, img))
+                        if (OnPicMissing.Invoke(img.gameObject, pngpath))
                             Debug.LogError($"not found sprite at: {pngpath}");
                     }
                     else
@@ -174,7 +177,6 @@ namespace PSDImporter
             rootRectTrans.transform.localPosition = Vector3.zero;
             rootRectTrans.transform.localScale = Vector3.one;
         }
-
         private static T CreateGo<T>(string goName, Transform parent, string LayerName = null) where T : Component
         {
             GameObject go = new GameObject(goName);
@@ -191,7 +193,6 @@ namespace PSDImporter
             else
                 return go.transform as T;
         }
-
         //private static void CreatePrefab(GameObject prefab, string goname)
         //{
         //    var go = PrefabUtility.SaveAsPrefabAssetAndConnect(prefab, selectionAssetFolder + "/" + goname + ".prefab", InteractionMode.AutomatedAction);

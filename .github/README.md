@@ -1,12 +1,26 @@
 # PSD2Unity
-PS中导出切图到Untiy生成UGUI界面或场景
 
-# 注意事项
+**PS中导出切图到Untiy生成UGUI界面或场景**
+
+
+
+## 原理
+
+插件分为两部分
+
+* photoshop脚本:用于放在ps中执行对图片的操作,最后导出散图和一个json样式的数据
+* unity代码部分:读取json数据然后创建对于的物体
+
+
+
+## 注意事项
 
 * **PS中组名尽量不要重名(虽然1.1.0版本已经优化此功能,但建议还是不要重名)**
 * **PS中同一个组下图层不要重名！！！(一个图层就是一张图，重名会导致只保存其中一个)**
 
-## How to use
+
+
+## 如何使用
 
 1. 通过UnityPackageManager导入包
 
@@ -16,9 +30,9 @@ PS中导出切图到Untiy生成UGUI界面或场景
 
 3. PS中操作
 
-      ![image-20220219221854573](img/image-20220219221854573.png)
+       ![image-20220219221854573](img/image-20220219221854573.png)
 
-      ![image-20220219221920658](img/image-20220219221920658.png)
+       ![image-20220219221920658](img/image-20220219221920658.png)
 
    * `Write Layer Pngs`  将ps中图层导出png
    * `Ignore hidden Layer` 忽略隐藏图层 ,如果勾选则不导出PS中隐藏图层
@@ -43,15 +57,60 @@ PS中导出切图到Untiy生成UGUI界面或场景
 
 4. 将生成的文件导入Unity中,然后将图片格式设置成`Sprite`
 
-5. 选中生成的`xxx.ps.data`,然后右键`PSDTools/PSD2Scene`或者`PSDTools/PSD2UGUI`生成界面
+5. 选中生成的`xxx.ps.data`,然后右键`PSDTools/PSD2Scene`或者`PSDTools/PSD2UGUI`生成界面即可
 
    ![gif](img/1.gif)
 
-   
 
 ---
 
-### ChangeLog
+## 其他
+
+提供两个回调事件,用于自定义扩展,eg:
+
+```c#
+using UnityEngine;
+using UnityEditor;
+using PSDImporter;
+using UnityEngine.UI;
+public class EditorTools
+{
+    [InitializeOnLoadMethod]
+    static void InitMethod()
+    {
+        //当创建图片时，如果图片不存在，则调用此方法
+        PSDCreateor.OnPicMissing += PSDCreateor_OnPicMissing;
+        //当创建游戏对象时，会调用此方法
+        PSDCreateor.OnGameObjectCreated += PSDCreateor_OnGameObjectCreated;
+    }
+
+    private static void PSDCreateor_OnGameObjectCreated(GameObject go, string picName)
+    {
+        if (go.TryGetComponent(out Image img))
+        {
+            if (picName.Contains("_btn"))
+                img.gameObject.AddComponent<Button>();
+        }
+        else if (go.TryGetComponent(out SpriteRenderer sr))
+        {
+            //xxx
+        }
+    }
+
+    private static bool PSDCreateor_OnPicMissing(GameObject go, string picPath)
+    {
+        return true;
+    }
+}
+```
+
+
+
+## ChangeLog
+
+### 1.1.1
+
+* 增加了两个回调事件  `PSDCreateor.OnPicMissing`和`PSDCreateor.OnGameObjectCreated`(ps脚本仍然是1.1.0)
 
 ### 1.1.0
 
@@ -61,50 +120,8 @@ PS中导出切图到Untiy生成UGUI界面或场景
 
 ### 1.0.7
 
-* 增加了当未找到图时两个回调事件,方便使用通用的小图
+* 增加了当未找到图时回调事件,方便使用通用的小图
 
-  ```c#
-  /// <summary>
-  /// 当创建2d找不到png时，响应事件 返回值true表示打印错误路径信息，false表示忽略错误
-  /// </summary>
-  public static event System.Func<string, SpriteRenderer, bool> OnMissingPngWith2D;
-  
-  /// <summary>
-  /// 当创建UI找不到png时，响应事件 返回值true表示打印错误路径信息，false表示忽略错误
-  /// </summary>
-  public static event System.Func<string, Image, bool> OnMissingPngWithUI;
-  
-  //使用示例
-  [InitializeOnLoadMethod]
-  static void InitMethod()
-  {
-      //监听psd创建通用小物体
-      PSDCreateor.OnMissingPngWith2D -= OnMissingPng;
-      PSDCreateor.OnMissingPngWith2D += OnMissingPng;
-  }
-  
-  private static bool OnMissingPng(string pngPath, SpriteRenderer sr)
-  {
-      if (pngPath.Contains("Common", StringComparison.OrdinalIgnoreCase))
-      {
-          string fileName = Path.GetFileName(pngPath);
-          string newPath = $"Assets/Assetbundle/sprites/common/{fileName}";
-          var sp = (Sprite)AssetDatabase.LoadAssetAtPath(newPath, typeof(Sprite));
-          if (sp != null)
-          {
-              sr.sprite = sp;
-          }
-          else
-          {
-              Debug.LogError("没有找到通用图：" + newPath);
-          }
-      }
-      return false;
-  }
-  
-  ```
-
-  
 
 ### 1.0.6
 
